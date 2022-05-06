@@ -1,0 +1,99 @@
+.App {
+  text-align: center;
+  padding: 0.6rem 2rem 0;
+  max-width: auto;
+  margin: 0 auto;
+  height: 100vh;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+:root {
+  --background: #ffffff;
+  --text-primary: rgb(3, 3, 7);
+  --text-secondary: rgb(130, 146, 167);
+  --accent: rgb(255, 255, 255);
+  /* --border: rgb(2, 2, 2);
+  --form-bg: #fff; */
+}
+
+[data-theme='dark'] {
+  --background: #171923;;
+  --text-primary: #fff;
+  --text-secondary: rgb(130, 146, 167);
+  --accent: rgb(255, 255, 255);
+  /* --border: #ffffff;
+    --form-bg: #191919; */
+}
+
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+
+h1 {
+
+  margin: 20px;
+  font-size: 2.5rem;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  color: var(--text-primary);
+  justify-content: center;
+  align-items: center;
+}
+
+h3 {
+  margin: 20px;
+  color: var(--text-secondary);
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.discover {
+  margin: 10px;
+  padding: 15px;
+  color: var(--accent);
+  text-decoration: none;
+  background-color: #1768ac;
+  border-radius: 10px;
+  font-weight: 500;
+  font-family: cursive;
+}
+
+ul {
+  display: flex;
+  list-style: none;
+}
+
+li {
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  padding: 0px 15px;
+}
+
+a {
+  color: #1768ac;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  min-height: 90vh;
+  display: flex;
+  margin-right: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+
+}
