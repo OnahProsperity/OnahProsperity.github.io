@@ -195,27 +195,27 @@ function About() {
             </div>
             <ul className="social">
               <li>
-                <a href="https://github.com/sundayonah">
+                <a href="https://github.com/sundayonah" target="_blank">
                   <FaGithub />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaTwitter />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaLinkedin />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaInstagram />
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/+2348136213958">
+                <a href="https://wa.me/+2348136213958" target="_blank">
                   <FaWhatsapp />
                 </a>
               </li>
