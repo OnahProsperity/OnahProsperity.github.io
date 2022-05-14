@@ -22,7 +22,7 @@
 }
 
 [data-theme='dark'] {
-  --background: #171923;;
+  --background: #1a202c;
   --text-primary: #fff;
   --text-secondary: rgb(130, 146, 167);
   --accent: rgb(255, 255, 255);

@@ -187,7 +187,7 @@ function About() {
             </li>
           </ul>
         </div>
-        <div className="rightside" onClick={showSidebar}>
+        <div className="rightside">
           <header className="Header">
             <div>
               <h2>Onah Prosper</h2>
@@ -221,7 +221,6 @@ function About() {
               </li>
             </ul>
           </header>
-
           <section className="about" id="about">
             <h2 className="title">About</h2>
             <hr className="hr" />
@@ -233,17 +232,25 @@ function About() {
               nihil sed amet quas omnis dolorem est blanditiis? Dicta voluptatum
               eveniet saepe esse quis id architecto, impedit odit magni. Est
               maiores veniam distinctio, laboriosam amet fugiat fuga? Accusamus
-              numquam facere labore, recusandae adipisci possimus, culpa
-              architecto tenetur tempora sunt repellat impedit officia nulla,
-              consequuntur voluptate illum quasi neque similique amet
-              laboriosam.
+            </p>
+          </section>
+          <section className="about" id="about">
+            <h2 className="title">NONNON</h2>
+            <hr className="hr" />
+            <div>
+              <span className=""> I'm xhunkleph and i'm a</span>
+            </div>
+            <p className="fade">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
+              nihil sed amet quas omnis dolorem est blanditiis? Dicta voluptatum
+              eveniet saepe esse quis id architecto, impedit odit magni. Est
+              maiores veniam distinctio, laboriosam amet fugiat fuga? Accusamus
             </p>
           </section>
           <section className="about" id="expirience">
             <h2 className="title">Epirience</h2>
             <hr className="hr" />
             <div></div>
-
             <p>
               I was involved as technical expert in several EU, national and
               regional research projects. Now, I'm working to build the next
@@ -329,27 +336,27 @@ function About() {
           <div className="Header">
             <ul className="social">
               <li>
-                <a href="https://github.com/sundayonah">
+                <a href="https://github.com/sundayonah" target="_blank">
                   <FaGithub />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaTwitter />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaLinkedin />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaInstagram />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="" target="_blank">
                   <FaWhatsapp />
                 </a>
               </li>
