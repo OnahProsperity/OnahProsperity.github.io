@@ -195,23 +195,18 @@ function About() {
             </div>
             <ul className="social">
               <li>
-                <a href="https://github.com/sundayonah">
+                <a href="https://github.com/OnahProsperity">
                   <FaGithub />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="https://twitter.com/OnahProsperity">
                   <FaTwitter />
                 </a>
               </li>
               <li>
-                <a href="">
+                <a href="https://www.linkedin.com/in/prosper-otor-3050791a6">
                   <FaLinkedin />
-                </a>
-              </li>
-              <li>
-                <a href="">
-                  <FaInstagram />
                 </a>
               </li>
               <li>
@@ -225,27 +220,21 @@ function About() {
           <section className="about" id="about">
             <h2 className="title">About</h2>
             <hr className="hr" />
-            <div>
-              <span> I'm xhunkleph and i'm a</span>
-            </div>
+            {/* <div>
+              <span> I'm Prosperity</span>
+            </div> */}
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus
-              nihil sed amet quas omnis dolorem est blanditiis? Dicta voluptatum
-              eveniet saepe esse quis id architecto, impedit odit magni. Est
-              maiores veniam distinctio, laboriosam amet fugiat fuga? Accusamus
-              numquam facere labore, recusandae adipisci possimus, culpa
-              architecto tenetur tempora sunt repellat impedit officia nulla,
-              consequuntur voluptate illum quasi neque similique amet
-              laboriosam.
+            I'm a Blockchain Core/Software Engineer continually seeking and testing new tools and opportunities for innovation.
+            I'm maniacally passionate about Ethereum Eco-System (EVM).
             </p>
           </section>
           <section className="about" id="expirience">
-            <h2 className="title">Epirience</h2>
+            <h2 className="title">Experience</h2>
             <hr className="hr" />
             <div></div>
 
             <p>
-              I was involved as technical expert in several EU, national and
+              I was involved as technical expert in several Projects, national and
               regional research projects. Now, I'm working to build the next
               generation web apps supporting startups and amazing projects.
             </p>
