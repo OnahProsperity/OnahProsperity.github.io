@@ -43,4 +43,31 @@ JDBGlobal
     https://jdbglobal.netlify.app/user/login
 
 Rigel's Protocol
-    A Decentralized Finance system
+Lead Blockchain Engineer.
+    Built the following Smart Contract that Power the following DApp.
+    SmartSwap
+    https://smartswap.rigelprotocol.com/#/swap
+
+    farming page with masterchef contract where you stake your LPs token
+    https://smartswap.rigelprotocol.com/#/farming-v2
+
+    special pool where you stake your RGP token and you can refer a friend to earn more rewards
+    https://smartswap.rigelprotocol.com/#/farming-v2/staking-RGPv2
+
+    NFTs Market Place
+    https://smartswap.rigelprotocol.com/#/nft
+
+    Smart Bid
+    where bidding takes place and the top three (3) winners are qualify for reward and some set of random address in the pool.
+    https://smartswap.rigelprotocol.com/#/smartbid
+
+    LaunchPad ecosystem
+    The Rigel Protocol Launchpad Platform helps innovative DeFi Projects to succeed in the highly competitive Blockchain industry
+     and fund their development needs. At the same time, 
+    participating projects have access to the wide platform community and full support from the Rigel Protocol team
+    https://launchpad.rigelprotocol.com/
+
+    GiftDApp
+    The Gift DApp is fabricated by Rigel Protocol and it comes with extremely good features. 
+    The gifting system permits influencers and projects to gift/reward their fans/community in crypto.
+    https://gift.rigelprotocol.com/
