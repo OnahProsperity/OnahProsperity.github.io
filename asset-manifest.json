@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/OnahProsperity/portFolio.git/static/css/main.c3466b4f.css",
+    "main.js": "/OnahProsperity/portFolio.git/static/js/main.43286c47.js",
+    "index.html": "/OnahProsperity/portFolio.git/index.html",
+    "main.c3466b4f.css.map": "/OnahProsperity/portFolio.git/static/css/main.c3466b4f.css.map",
+    "main.43286c47.js.map": "/OnahProsperity/portFolio.git/static/js/main.43286c47.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.c3466b4f.css",
+    "static/js/main.43286c47.js"
+  ]
+}
