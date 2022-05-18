@@ -1,0 +1,73 @@
+Dexira.Finance
+    An Individual Retirement Account designed specifically for Decentralized Exchanges.
+    https://www.dexfinance.com/dexira/
+
+Dexira Dashboard.
+    Where reward are auto claim in different currency
+    https://dexira.app/
+
+Dexira Smart Contract Audit
+    An independent third part audit was offer to the dex team
+    https://www.dexfinance.com/wp-content/uploads/2022/01/DEXIRA-SMART-CONTRACT-SECURITY-AUDIT.pdf
+
+Dexira Migration token from V1.
+    Token migration involves balance transfers of investors from previous token in investor 
+    Ethereum wallets to a new token. This happen when a token is transision to a new address 
+    because bug was discovered in the previous deployment.
+    https://tikiswapfrontend.netlify.app/
+ 
+BSCG Game
+    BSC Games promised to be a GameFi project on the Binance Smart Chain. 
+    The primary aim of BSC Games is to turn gaming from just leisure activity to a cash cow by merging gaming
+    https://casino.bscgames.win/
+
+Cheetah.Finance
+    The Cheetah token is a coin based on the conservation of the animal kingdom. 
+    Destined to Ecotourism and the conservation of cheetahs.
+    https://tokencheetah.com/
+
+Bida.Finance
+    Bida.Finance ICO contract audit
+    https://bida.finance/quickstart // https://eu.docs.wps.com/l/sALmM9UutssFV6P24hKynFA
+
+Centralized Exchange NPM package.
+    Decided to lay hands on how CEX work in general and come up with a package with the database schema to enable easy installation
+    https://www.npmjs.com/package/cexdb
+
+JDBGlobal
+    An industry that specialized in buying of crypto currency.
+    - process of selling: 
+        Create an account.
+        Transfer your currency into a generated address specially for your account.
+        sell to the platform.
+    https://jdbglobal.netlify.app/user/login
+
+Rigel's Protocol
+Lead Blockchain Engineer.
+    Built the following Smart Contract that Power the following DApp.
+    SmartSwap
+    https://smartswap.rigelprotocol.com/#/swap
+
+    farming page with masterchef contract where you stake your LPs token
+    https://smartswap.rigelprotocol.com/#/farming-v2
+
+    special pool where you stake your RGP token and you can refer a friend to earn more rewards
+    https://smartswap.rigelprotocol.com/#/farming-v2/staking-RGPv2
+
+    NFTs Market Place
+    https://smartswap.rigelprotocol.com/#/nft
+
+    Smart Bid
+    where bidding takes place and the top three (3) winners are qualify for reward and some set of random address in the pool.
+    https://smartswap.rigelprotocol.com/#/smartbid
+
+    LaunchPad ecosystem
+    The Rigel Protocol Launchpad Platform helps innovative DeFi Projects to succeed in the highly competitive Blockchain industry
+     and fund their development needs. At the same time, 
+    participating projects have access to the wide platform community and full support from the Rigel Protocol team
+    https://launchpad.rigelprotocol.com/
+
+    GiftDApp
+    The Gift DApp is fabricated by Rigel Protocol and it comes with extremely good features. 
+    The gifting system permits influencers and projects to gift/reward their fans/community in crypto.
+    https://gift.rigelprotocol.com/
