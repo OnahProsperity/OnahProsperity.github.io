@@ -21,7 +21,8 @@ body {
 
 
 :root {
-  --background: #ffffff;
+  --background: rgb(26, 32, 44);
+
   --text-primary: rgb(95, 91, 91);
   --text-secondary: #2c3e50;
   --fade: rgb(248, 247, 247);
@@ -31,7 +32,7 @@ body {
 }
 
 [data-theme='dark'] {
-  --background: rgb(26, 32, 44);
+  --background: #ffffff;
   --text-primary: rgb(163, 159, 159);
   --text-secondary: rgb(237, 240, 243);
   --fade: rgb(39, 45, 58);
