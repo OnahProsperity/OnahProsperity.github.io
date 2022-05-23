@@ -235,9 +235,22 @@ function About() {
             <hr className="hr" />
             <div></div>
             <p>
-              I was involved as technical expert in several Projects, national
-              and regional research projects. Now, I'm working to build the next
-              generation web3 amazing projects.
+            Experience, Professional, Passionate with strong leadership and relationship-building skill Blockchain Core/Software Developer 
+            offering 2 years + of relevant experience and a proven tract record of success in achieving extraordinary results. 
+            With strong attention to detail and accuracy and important ability to function well in a team setting. 
+            Having high Experience Developing and building highly Secure, well documented, 
+            easy to comprehend Smart-Contracts on Ethereum Virtual Machine (EVM).
+            </p>
+          </section>
+          <section className="about" id="expirience">
+            <h2 className="title">2 Years Plan</h2>
+            <hr className="hr" />
+            <div></div>
+            <p>
+            In order to ensure high level security and have an outstanding knowledge on EVM i want to go into full Core Engineering in 
+            Blockchain Industry there by contributing to the EVM core repo which have began, helping the community at large why working with
+            https://twitter.com/TimBeiko, https://github.com/minimalsm. Also Enhancing my knowledge on GETH, HyperLedger Fabric and HyperLedger Composer.
+            Gonna be fun.
             </p>
           </section>
           <section className="about" id="about">
@@ -318,15 +331,8 @@ function About() {
             </a>
           </section>
           <section className="about" id="project">
-            <h2 className="title">Project</h2>
+            <h2 className="title">Projects</h2>
             <hr className="hr" />
-            <div></div>
-            <p>
-              I was involved as technical expert in several EU, national and
-              regional research projects. Now, I'm working to build the next
-              generation web apps supporting startups and amazing projects.
-            </p>{" "}
-            <br />
             <p className="fade">
               An Individual Retirement Account designed specifically for
               Decentralized Exchanges. Where reward are auto claim in different
@@ -422,7 +428,7 @@ function About() {
             <div></div>
             <p>
               I studied Software Engineering and I have performed several
-              research projects during my undergraduate anf after.
+              research projects during my undergraduate and after.
             </p>
           </section>
           <section className="about" id="research">
@@ -462,6 +468,17 @@ function About() {
               <li>Googling</li>
               <li>Git</li>
             </div>
+          </section>
+          <section className="about" id="interest">
+            <h2 className="title">Favourite Quotes</h2>
+            <hr className="hr" />
+            <div></div>
+            <p>
+              If God is your Father, Endeavour to always reach out, remember Family First.
+            </p>
+            <p>
+              The Mind is a powerfull intrument that when utilized well NOTHING is Impossible.
+            </p>
           </section>
           <section className="about" id="interest">
             <h2 className="title">Interest</h2>
