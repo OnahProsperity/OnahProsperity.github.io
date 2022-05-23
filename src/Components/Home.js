@@ -19,7 +19,7 @@ function Home() {
   };
 
   const x = "👍";
-  const y = "🥇";
+  // const y = "🥇";
 
   return (
     <div data-theme={theme}>

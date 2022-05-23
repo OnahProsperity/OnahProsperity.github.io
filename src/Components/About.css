@@ -50,7 +50,6 @@ body {
   border-radius: 5px;
   background-color: var(--fade);
   font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace;
-  font-size: .85em;
 }
 
 .container-1 {
@@ -84,12 +83,12 @@ body {
 .rightside {
   flex: 3;
   margin-top: 70px;
+  padding-right: 4rem;
 
 }
 
 .leftside {
   flex: 1;
-  /* height: auto; */
   margin-top: 61px;
 
 }
@@ -109,16 +108,13 @@ body {
   position: fixed;
   height: 580px;
   overflow-y: scroll;
-  padding: 25px;
+  padding: 25px 25px;
   box-sizing: border-box;
-
-  /* transition: 2s; */
-
   background-color: var(--background);
 }
 
 .active li {
-  padding: 5px;
+  padding: 4px;
   margin: 0px 0px 0px 20px;
   justify-content: center;
   align-items: center;
@@ -145,8 +141,6 @@ body {
   font-size: 15px;
   text-decoration: none;
   color: var(--text-secondary);
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
 .menu-bar {
@@ -162,22 +156,11 @@ body {
   /* wimardth: 100vh; */
 }
 
-/* .menu-bar ul {
-  list-style: none;
-  display: flex;
-}
-
-*/
-
 .menu-bar ul li a {
   font-size: 15px;
   text-decoration: none;
   color: var(--text-secondary);
 }
-
-
-
-
 
 /* dropdown menu style */
 .dropdown-menu {
@@ -275,7 +258,7 @@ div .Item li {
   }
 
   .active {
-    padding: 0px 70px;
+    padding: 0px 60px;
   }
 
   .nav-btn {
@@ -283,10 +266,7 @@ div .Item li {
   }
 
   .rightside {
-    max-width: 975px;
-    padding: 0rem 7rem 0rem 0rem;
-    align-items: center;
-
+    max-width: 100%;
   }
 }
 
@@ -299,6 +279,7 @@ div .Item li {
   .active {
     margin-top: -32px;
     max-height: auto;
+
   }
 
   .mobileMenu {
@@ -307,6 +288,7 @@ div .Item li {
     width: 20px;
     font-size: 24px;
     color: #8f969c;
+    cursor: pointer;
 
     /* transition-delay: 850ms; */
   }
