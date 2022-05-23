@@ -247,9 +247,10 @@ function About() {
             <hr className="hr" />
             <div></div>
             <p>
-            In order to ensure high level security and have an outstanding knowledge on EVM i want to build go into full Core Engineering in 
-            Blockchain Industry there by contributing to the EVM core repo working with 
-            https://twitter.com/TimBeiko, https://github.com/minimalsm. Also Enhancing my knowledge on GETH, HyperLedger Fabric and HyperLedger Composer
+            In order to ensure high level security and have an outstanding knowledge on EVM i want to go into full Core Engineering in 
+            Blockchain Industry there by contributing to the EVM core repo which have began, helping the community at large why working with
+            https://twitter.com/TimBeiko, https://github.com/minimalsm. Also Enhancing my knowledge on GETH, HyperLedger Fabric and HyperLedger Composer.
+            Gonna be fun.
             </p>
           </section>
           <section className="about" id="about">
