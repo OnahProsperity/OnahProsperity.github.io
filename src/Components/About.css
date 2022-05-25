@@ -295,6 +295,7 @@ div .Item li {
 
   .rightside {
     margin-top: 75px;
+    padding-right: 0rem;
   }
 
   .about-nav {
@@ -320,6 +321,10 @@ div .Item li {
 @media (max-width: 419px) {
   h1 {
     font-size: 1.5rem;
+  }
+
+  .rightside {
+    padding: 0rem;
   }
 }
 
