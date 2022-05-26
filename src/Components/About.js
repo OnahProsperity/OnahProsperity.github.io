@@ -40,7 +40,7 @@ function About() {
       z-index: 1;
     }
     a {
-      padding: 10px;
+      padding: 5px;
       display: flex;
       justify-content: flex-end;
       color: var(--text-primary);
@@ -49,6 +49,7 @@ function About() {
 
     .navbar-nav,
     .nav-link {
+      height: 60px;
       padding: 10px;
       display: flex;
       justify-content: flex-end;
@@ -60,7 +61,7 @@ function About() {
 
     .nav-btn:hover {
       border-bottom: 2px solid #1768ac;
-      padding-bottom: 5px;
+      padding-bottom: 0px;
       width: 60px;
     }
     .details {

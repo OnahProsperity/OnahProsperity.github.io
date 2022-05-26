@@ -22,7 +22,6 @@ body {
 
 :root {
   --background: rgb(26, 32, 44);
-
   --text-primary: rgb(95, 91, 91);
   --text-secondary: #2c3e50;
   --fade: rgb(248, 247, 247);
@@ -69,8 +68,6 @@ body {
   font-weight: 900;
 }
 
-
-
 .title {
   color: var(--text-primary);
 }
@@ -89,7 +86,7 @@ body {
 
 .leftside {
   flex: 1;
-  margin-top: 61px;
+  margin-top: 45px;
 
 }
 
@@ -113,6 +110,13 @@ body {
   background-color: var(--background);
 }
 
+.active a {
+  list-style: none;
+  font-size: 15px;
+  text-decoration: none;
+  color: var(--text-secondary);
+}
+
 .active li {
   padding: 4px;
   margin: 0px 0px 0px 20px;
@@ -121,15 +125,8 @@ body {
   font-size: 24px;
 }
 
-.active a {
-  list-style: none;
-  font-size: 15px;
-  text-decoration: none;
-  color: var(--text-secondary);
-}
-
 .sidebar li {
-  padding: 5px;
+  padding: 4px;
   margin: 0px 0px 0px 20px;
   justify-content: center;
   align-items: center;
@@ -157,6 +154,7 @@ body {
 }
 
 .menu-bar ul li a {
+
   font-size: 15px;
   text-decoration: none;
   color: var(--text-secondary);
@@ -215,7 +213,6 @@ body {
 }
 
 
-
 .social li {
   font-size: 30px;
   padding: 10px 10px;
@@ -263,14 +260,17 @@ div .Item li {
 
   .nav-btn {
     display: flex;
+
   }
 
   .rightside {
+
     max-width: 100%;
   }
 }
 
-@media (max-width:720px) {
+
+@media (max-width:790px) {
   .container-1 {
     display: block;
     padding: 10px;
@@ -307,8 +307,6 @@ div .Item li {
     /* transition: 2s; */
   }
 
-
-
   .menu-bar {
     display: none;
   }
@@ -331,11 +329,3 @@ div .Item li {
 .edit {
   padding: 4rem;
 }
-
-
-
-/* @media screen and (max-width: 720px) {
-  .navbar {
-    display: flex;
-  }
-} */

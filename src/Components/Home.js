@@ -19,7 +19,7 @@ function Home() {
   };
 
   const x = "👍";
-  const y = "🥇";
+  // const y = "🥇";
 
   return (
     <div data-theme={theme}>
@@ -37,23 +37,18 @@ function Home() {
           </Link>
           <ul>
             <li>
-              <a href="https://github.com/sundayonah" target=" _blank">
+              <a href="https://github.com/OnahProsperity" target=" _blank">
                 <FaGithub />
               </a>
             </li>
             <li>
-              <a href="" target=" _blank">
+              <a href="https://twitter.com/OnahProsperity" target=" _blank">
                 <FaTwitter />
               </a>
             </li>
             <li>
-              <a href="" target=" _blank">
+              <a href="https://www.linkedin.com/in/prosper-otor-3050791a6" target=" _blank">
                 <FaLinkedin />
-              </a>
-            </li>
-            <li>
-              <a href="" target=" _blank">
-                <FaInstagram />
               </a>
             </li>
             <li>
