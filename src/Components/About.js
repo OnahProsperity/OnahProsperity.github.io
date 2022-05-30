@@ -222,9 +222,7 @@ function About() {
           <section className="about" id="about">
             <h2 className="title">About</h2>
             <hr className="hr" />
-            {/* <div>
-              <span> I'm Prosperity</span>
-            </div> */}
+
             <p>
               I'm a Blockchain Core/Software Engineer continually seeking and
               testing new tools and opportunities for innovation. I'm maniacally

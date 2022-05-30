@@ -54,7 +54,7 @@ body {
 .container-1 {
   display: flex;
   justify-content: center;
-  /* background-color: var(--background); */
+
   background-color: var(--background);
 }
 
@@ -72,6 +72,8 @@ body {
   color: var(--text-primary);
 }
 
+
+
 .rightside p {
   color: var(--text-secondary);
   font-size: 5em;
@@ -87,15 +89,14 @@ body {
 .leftside {
   flex: 1;
   margin-top: 45px;
-
 }
 
 .sidebar {
   display: block;
   position: fixed;
-  height: 580px;
+  height: 625px;
   overflow-y: scroll;
-  padding: 0px 25px;
+  padding: 34px 25px;
   box-sizing: border-box;
 
 }
@@ -103,9 +104,9 @@ body {
 .active {
   display: block;
   position: fixed;
-  height: 580px;
+  height: 625px;
   overflow-y: scroll;
-  padding: 25px 25px;
+  padding: 34px 25px;
   box-sizing: border-box;
   background-color: var(--background);
 }
@@ -221,9 +222,9 @@ body {
 
 .about {
   padding: 20px;
-  font-size: 16px;
   color: var(--text-primary);
 }
+
 
 .about p {
   font-size: 18px;
@@ -248,7 +249,8 @@ div .Item li {
   cursor: pointer;
 }
 
-@media (min-width:1040px) {
+
+@media (min-width:1060px) {
   .sidebar {
     padding: 0px 60px;
     /* transition: 2s; */
@@ -264,7 +266,6 @@ div .Item li {
   }
 
   .rightside {
-
     max-width: 100%;
   }
 }
@@ -279,7 +280,6 @@ div .Item li {
   .active {
     margin-top: -32px;
     max-height: auto;
-
   }
 
   .mobileMenu {
