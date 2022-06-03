@@ -111,6 +111,10 @@ body {
   background-color: var(--background);
 }
 
+.active :hover {
+  color: rgb(39, 55, 146);
+}
+
 .active a {
   list-style: none;
   font-size: 15px;
@@ -172,7 +176,10 @@ body {
   justify-content: center;
   padding: 4px;
   color: var(--text-primary);
+}
 
+.menu-bar ul li:focus .dropdown-menu ul li {
+  color: red;
 }
 
 .menu-bar ul li:hover .dropdown-menu {
@@ -180,6 +187,7 @@ body {
   position: absolute;
   left: 0;
   top: 100%;
+
 }
 
 .menu-bar ul li:hover .dropdown-menu ul {
@@ -327,5 +335,5 @@ div .Item li {
 }
 
 .edit {
-  padding: 4rem;
+  padding: 2rem;
 }

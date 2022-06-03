@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import { Navbar, Nav } from "react-bootstrap";
 import styled from "styled-components";
@@ -9,12 +9,13 @@ import {
   FaGithub,
   FaTwitter,
   FaLinkedin,
-  FaInstagram,
   FaWhatsapp,
   FaBars,
 } from "react-icons/fa";
 import "./Home.css";
 import useLocalStorage from "use-local-storage";
+import { CgSun } from "react-icons/cg";
+import { HiMoon } from "react-icons/hi";
 
 function About() {
   let x = " ✋";
@@ -119,7 +120,9 @@ function About() {
               </ul>
             </div>
             <div className="theme-toggle">
-              <i onClick={switchTheme} class="fa fa-toggle-on"></i>
+              <i onClick={switchTheme}>
+                {theme === "light" ? <HiMoon size={25} /> : <CgSun size={25} />}
+              </i>
             </div>
           </Nav>
           <div className="mobileMenu">
