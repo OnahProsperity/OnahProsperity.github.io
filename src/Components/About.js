@@ -16,6 +16,7 @@ import "./Home.css";
 import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
+import Helmet from "react-helmet";
 
 function About() {
   let x = " ✋";
@@ -71,6 +72,20 @@ function About() {
   `;
   return (
     <div data-theme={theme}>
+      <Helmet>
+        <title>About Us</title>
+        <meta
+          name="description"
+          content="giving you the the best is our watchword"
+        />
+        <meta
+          name="keywords"
+          content="Web Developer,
+           Blockchain Developer,
+           Software Engineer, 
+          Persionate About Ethereum"
+        />
+      </Helmet>
       <Styles>
         <Navbar>
           <Nav>
@@ -121,7 +136,7 @@ function About() {
             </div>
             <div className="theme-toggle">
               <i onClick={switchTheme}>
-                {theme === "light" ? <HiMoon size={25} /> : <CgSun size={25} />}
+                {theme === "dark" ? <HiMoon size={25} /> : <CgSun size={25} />}
               </i>
             </div>
           </Nav>

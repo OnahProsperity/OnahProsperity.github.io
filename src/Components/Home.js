@@ -5,6 +5,7 @@ import { FaGithub, FaWhatsapp, FaTwitter, FaLinkedin } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
+import Helmet from "react-helmet";
 function Home() {
   const [theme, setTheme] = useLocalStorage("theme" ? "dark" : "light");
 
@@ -17,6 +18,13 @@ function Home() {
 
   return (
     <div data-theme={theme}>
+      <Helmet>
+        <title>Home page</title>
+        <meta
+          name="description"
+          content="I'm a Blockchain Core/Software Engineer continually seeking and testing new tools and opportunities for innovation. I'm maniacally passionate about Ethereum Eco-System (EVM)"
+        />
+      </Helmet>
       <div className="App">
         <header className="App-header">
           <div className="theme-toggle">
