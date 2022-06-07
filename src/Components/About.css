@@ -33,7 +33,7 @@ body {
 [data-theme='dark'] {
   --background: #ffffff;
   --text-primary: rgb(163, 159, 159);
-  --text-secondary: rgb(237, 240, 243);
+  --text-secondary: rgb(179, 186, 194);
   --fade: rgb(39, 45, 58);
 
 
@@ -42,13 +42,11 @@ body {
 }
 
 
-
 .fade {
   padding: 10px;
   margin: 8px 0px;
   border-radius: 5px;
   background-color: var(--fade);
-  font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace;
 }
 
 .container-1 {
@@ -219,6 +217,7 @@ body {
 .Header p {
   font-size: 20px;
   padding: 10px 0px;
+  color: var(--text-secondary);
 }
 
 
