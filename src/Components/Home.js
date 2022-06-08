@@ -19,7 +19,7 @@ function Home() {
   return (
     <div data-theme={theme}>
       <Helmet>
-        <title>Home page</title>
+        <title>Prosperity Onah | Web and Blockchain Developer</title>
         <meta
           name="description"
           content="I'm a Blockchain Core/Software Engineer continually seeking and testing new tools and opportunities for innovation. I'm maniacally passionate about Ethereum Eco-System (EVM)"

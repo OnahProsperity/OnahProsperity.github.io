@@ -73,7 +73,7 @@ function About() {
   return (
     <div data-theme={theme}>
       <Helmet>
-        <title>About Us</title>
+        <title>Prosperity Onah | Web and Blockchain Developer</title>
         <meta
           name="description"
           content="giving you the the best is our watchword"
@@ -81,7 +81,8 @@ function About() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           name="keywords"
-          content="Web Developer,
+          content="Prosperity Onah,
+          Web Developer,
            Blockchain Developer,
            Software Engineer, 
           Persionate About Ethereum"
