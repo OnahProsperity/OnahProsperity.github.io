@@ -343,7 +343,7 @@ function About() {
               Rigel NFT
             </a>
             <p className="fade">
-              Twhere bidding takes place and the top three (3) winners are
+              Where bidding takes place and the top three (3) winners are
               qualify for reward and some set of random address in the pool.
             </p>
             <a
