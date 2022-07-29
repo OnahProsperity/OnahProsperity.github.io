@@ -16,6 +16,7 @@ import "./Home.css";
 import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
+import Helmet from "react-helmet";
 
 function About() {
   let x = " ✋";
@@ -71,6 +72,22 @@ function About() {
   `;
   return (
     <div data-theme={theme}>
+      <Helmet>
+        <title>Prosperity Onah | Web and Blockchain Developer</title>
+        <meta
+          name="description"
+          content="giving you the the best is our watchword"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="keywords"
+          content="Prosperity Onah,
+          Web Developer,
+           Blockchain Developer,
+           Software Engineer, 
+          Persionate About Ethereum"
+        />
+      </Helmet>
       <Styles>
         <Navbar>
           <Nav>
@@ -121,12 +138,16 @@ function About() {
             </div>
             <div className="theme-toggle">
               <i onClick={switchTheme}>
-                {theme === "light" ? <HiMoon size={25} /> : <CgSun size={25} />}
+                {theme === "dark" ? (
+                  <HiMoon size={25} aria-label="my himoon" />
+                ) : (
+                  <CgSun size={25} aria-label="my cgsun" />
+                )}
               </i>
             </div>
           </Nav>
           <div className="mobileMenu">
-            <FaBars onClick={showSidebar} />
+            <FaBars onClick={showSidebar} aria-label="my fabars" />
           </div>
         </Navbar>
       </Styles>
@@ -201,22 +222,42 @@ function About() {
             </div>
             <ul className="social">
               <li>
-                <a href="https://github.com/OnahProsperity">
+                <a
+                  href="https://github.com/OnahProsperity"
+                  target="_blank"
+                  alt="github"
+                  aria-label="my github"
+                >
                   <FaGithub />
                 </a>
               </li>
               <li>
-                <a href="https://twitter.com/OnahProsperity">
+                <a
+                  href="https://twitter.com/OnahProsperity"
+                  target="_blank"
+                  aria-label="my twitter"
+                  alt="twitter"
+                >
                   <FaTwitter />
                 </a>
               </li>
               <li>
-                <a href="https://www.linkedin.com/in/prosper-otor-3050791a6">
+                <a
+                  href="https://www.linkedin.com/in/prosper-otor-3050791a6"
+                  target="_blank"
+                  aria-label="my linkedin"
+                  alt="linkedin"
+                >
                   <FaLinkedin />
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/+2348136213958" target="_blank">
+                <a
+                  href="https://wa.me/+2348136213958"
+                  alt="whattsapp"
+                  aria-label="my whatsapp"
+                  target="_blank"
+                >
                   <FaWhatsapp />
                 </a>
               </li>
@@ -244,6 +285,9 @@ function About() {
           </section>
           <section className="about" id="about">
             <h2 className="title">Rigel's Protocol</h2>
+            <Helmet>
+              <meta name="description" content="Lead Blockchain Engineer" />
+            </Helmet>
             <hr className="hr" />
             <div>
               <span className=""> Lead Blockchain Engineer.</span>
@@ -256,7 +300,9 @@ function About() {
             </p>
             <a
               href="https://smartswap.rigelprotocol.com/#/swap"
+              alt="rigelprotocol"
               target="_blank"
+              aria-label="rigel protocol"
             >
               Direct cross chain swapping
             </a>
@@ -268,6 +314,7 @@ function About() {
             <a
               href="https://smartswap.rigelprotocol.com/#/farming-v2"
               target="_blank"
+              aria-label="rigel protocol farming"
             >
               Yield Farm
             </a>
@@ -278,6 +325,7 @@ function About() {
             <a
               href="https://smartswap.rigelprotocol.com/#/farming-v2/staking-RGPv2"
               target="_blank"
+              aria-label="rigel protocol staking"
             >
               Special Pool
             </a>
@@ -287,16 +335,21 @@ function About() {
               minted and worthless images put out there for you to hold, whilst
               just keeping them shining in your wallets{" "}
             </p>
-            <a href="https://smartswap.rigelprotocol.com/#/nft" target="_blank">
+            <a
+              href="https://smartswap.rigelprotocol.com/#/nft"
+              target="_blank"
+              aria-label="rigel protocol com"
+            >
               Rigel NFT
             </a>
             <p className="fade">
-              Twhere bidding takes place and the top three (3) winners are
+              Where bidding takes place and the top three (3) winners are
               qualify for reward and some set of random address in the pool.
             </p>
             <a
               href="https://smartswap.rigelprotocol.com/#/smartbid"
               target="_blank"
+              aria-label="rigel protocol smartbib"
             >
               smart Bid
             </a>
@@ -307,7 +360,11 @@ function About() {
               projects have access to the wide platform community and full
               support from the Rigel Protocol team
             </p>
-            <a href="https://launchpad.rigelprotocol.com/" target="_blank">
+            <a
+              href="https://launchpad.rigelprotocol.com/"
+              target="_blank"
+              aria-label="launchpad rigel protocol"
+            >
               Launchpad
             </a>
             <p className="fade">
@@ -315,7 +372,11 @@ function About() {
               extremely good features. The gifting system permits influencers
               and projects to gift/reward their fans/community in crypto.
             </p>
-            <a href="https://gift.rigelprotocol.com/" target="_blank">
+            <a
+              href="https://gift.rigelprotocol.com/"
+              target="_blank"
+              aria-label="gift rigel protocol"
+            >
               GiftDApp
             </a>
           </section>
@@ -327,23 +388,28 @@ function About() {
               I was involved as technical expert in several EU, national and
               regional research projects. Now, I'm working to build the next
               generation web apps supporting startups and amazing projects.
-            </p>{" "}
+            </p>
             <br />
             <p className="fade">
               An Individual Retirement Account designed specifically for
               Decentralized Exchanges. Where reward are auto claim in different
               currency and Audit.
             </p>
-            <a href="https://www.dexfinance.com/dexira/" target="_blank">
+            <a
+              href="https://www.dexfinance.com/dexira/"
+              target="_blank"
+              aria-label="dex finance dexira"
+            >
               DexIRA.Finance
-            </a>{" "}
+            </a>
             <br />
             <a
               href="https://www.dexfinance.com/wp-content/uploads/2022/01/DEXIRA-SMART-CONTRACT-SECURITY-AUDIT.pdf"
               target="_blank"
+              aria-label="dexfinace content uploads"
             >
               DexIRA.Finance Audit
-            </a>{" "}
+            </a>
             <br />
             <p className="fade">
               Dexira Migration token from V1. Token migration involves balance
@@ -352,7 +418,11 @@ function About() {
               a new address because bug was discovered in the previous
               deployment.
             </p>
-            <a href="https://tikiswapfrontend.netlify.app/" target="_blank">
+            <a
+              href="https://tikiswapfrontend.netlify.app/"
+              target="_blank"
+              aria-label="tikiSwap frontend"
+            >
               Dex Migration
             </a>
             <p className="fade">
@@ -360,7 +430,11 @@ function About() {
               Chain. The primary aim of BSC Games is to turn gaming from just
               leisure activity to a cash cow by merging gaming
             </p>
-            <a href="https://casino.bscgames.win/" target="_blank">
+            <a
+              href="https://casino.bscgames.win/"
+              target="_blank"
+              aria-label="casino games"
+            >
               BSCG Game
             </a>
             <p className="fade">
@@ -369,7 +443,11 @@ function About() {
               a generated address specially for your account. sell to the
               platform.
             </p>
-            <a href="https://jdbglobal.netlify.app/user/login" target="_blank">
+            <a
+              href="https://jdbglobal.netlify.app/user/login"
+              target="_blank"
+              aria-label="global netlify"
+            >
               JDBGlobal
             </a>
             <p className="fade">
@@ -377,18 +455,27 @@ function About() {
               animal kingdom. Destined to Ecotourism and the conservation of
               cheetahs.
             </p>
-            <a href="https://tokencheetah.com/" target="_blank">
+            <a
+              href="https://tokencheetah.com/"
+              target="_blank"
+              aria-label="token cheetah"
+            >
               Cheetah.finance
             </a>
             <p className="fade">Bida.Finance ICO contract audit</p>
             <a
               href="https://eu.docs.wps.com/l/sALmM9UutssFV6P24hKynFA"
               target="_blank"
+              aria-label="docs wps"
             >
               Bida Finance ICO Audit
             </a>
             <br />
-            <a href="https://bida.finance/quickstart" target="_blank">
+            <a
+              href="https://bida.finance/quickstart"
+              target="_blank"
+              aria-label="bida finance"
+            >
               Bida Finance ICO
             </a>
           </section>
@@ -407,14 +494,22 @@ function About() {
               Network upgrades and application standards for Ethereum are
               discussed and developed through the EIP process.
             </p>
-            <a href="https://github.com/OnahProsperity/EIPs" target="_blank">
+            <a
+              href="https://github.com/OnahProsperity/EIPs"
+              target="_blank"
+              aria-label="onah prospeerity github"
+            >
               EIP Contribution
             </a>
             <p className="fade">
               Release an Open source Centralized Exchange npm package with the
               database schema to enable easy installation open for contribution
             </p>
-            <a href="https://www.npmjs.com/package/cexdb" target="_blank">
+            <a
+              href="https://www.npmjs.com/package/cexdb"
+              target="_blank"
+              aria-label="npmjs packages"
+            >
               Centralized Exchange NPM
             </a>
           </section>
@@ -484,12 +579,20 @@ function About() {
           <div className="Header">
             <ul className="social">
               <li>
-                <a href="https://github.com/OnahProsperity" target="_blank">
+                <a
+                  href="https://github.com/OnahProsperity"
+                  target="_blank"
+                  aria-label="my github"
+                >
                   <FaGithub />
                 </a>
               </li>
               <li>
-                <a href="https://twitter.com/OnahProsperity" target="_blank">
+                <a
+                  href="https://twitter.com/OnahProsperity"
+                  target="_blank"
+                  aria-label="my twitter"
+                >
                   <FaTwitter />
                 </a>
               </li>
@@ -497,12 +600,17 @@ function About() {
                 <a
                   href="https://www.linkedin.com/in/prosper-otor-3050791a6"
                   target="_blank"
+                  aria-label="my linkedin"
                 >
                   <FaLinkedin />
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/+2348136213958" target="_blank">
+                <a
+                  href="https://wa.me/+2348136213958"
+                  target="_blank"
+                  aria-label="my whatsapp"
+                >
                   <FaWhatsapp />
                 </a>
               </li>

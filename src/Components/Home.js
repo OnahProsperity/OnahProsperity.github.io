@@ -5,6 +5,7 @@ import { FaGithub, FaWhatsapp, FaTwitter, FaLinkedin } from "react-icons/fa";
 import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
+import Helmet from "react-helmet";
 function Home() {
   const [theme, setTheme] = useLocalStorage("theme" ? "dark" : "light");
 
@@ -17,6 +18,13 @@ function Home() {
 
   return (
     <div data-theme={theme}>
+      <Helmet>
+        <title>Prosperity Onah | Web and Blockchain Developer</title>
+        <meta
+          name="description"
+          content="I'm a Blockchain Core/Software Engineer continually seeking and testing new tools and opportunities for innovation. I'm maniacally passionate about Ethereum Eco-System (EVM)"
+        />
+      </Helmet>
       <div className="App">
         <header className="App-header">
           <div className="theme-toggle">
@@ -33,25 +41,42 @@ function Home() {
           </Link>
           <ul>
             <li>
-              <a href="https://github.com/OnahProsperity" target=" _blank">
+              <a
+                href="https://github.com/OnahProsperity"
+                alt="github"
+                aria-label="my github"
+                target=" _blank"
+              >
                 <FaGithub />
               </a>
             </li>
             <li>
-              <a href="https://twitter.com/OnahProsperity" target=" _blank">
+              <a
+                href="https://twitter.com/OnahProsperity"
+                alt="twitter"
+                aria-label="my twitter"
+                target=" _blank"
+              >
                 <FaTwitter />
               </a>
             </li>
             <li>
               <a
                 href="https://www.linkedin.com/in/prosper-otor-3050791a6"
+                alt="linkeden"
+                aria-label="my linkedin"
                 target=" _blank"
               >
                 <FaLinkedin />
               </a>
             </li>
             <li>
-              <a href="https://wa.me/+2348136213958" target="_blank">
+              <a
+                href="https://wa.me/+2348136213958"
+                alt="whatsapp"
+                aria-label=" my whatsapp"
+                target="_blank"
+              >
                 <FaWhatsapp />
               </a>
             </li>
