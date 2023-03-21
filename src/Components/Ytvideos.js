@@ -1,6 +1,8 @@
 import React from "react";
 import "../Components/Ytvideos.css";
 import images from "../images/image.png";
+import img1 from "../images/intro.png";
+import img2 from "../images/yull.png";
 
 // const ytVideos = [
 //   {
@@ -26,26 +28,26 @@ const Ytvideos = () => {
       <div className="yt_container">
         <div className="yt_content">
           <div className="yt_img">
-            <img src={images} alt="" />
+            <img src={img1} alt="" />
             <a
-              href="https://dashboard.alchemy.com/apps/r87bkmejsyop9k6i"
+              href="https://youtu.be/DMWa8vspIoQ"
               target="_blank"
               rel="noreferrer"
             >
-              <h3>this is I'm Onah Prosper</h3>
+              <h3>Solidity Assembly opCodes</h3>
             </a>
           </div>
         </div>
         <div className="yt_content">
           <div className="yt_img">
-            <img src={images} alt="" />
+            <img src={img2} alt="" />
           </div>
           <a
-            href="https://dashboard.alchemy.com/apps/r87bkmejsyop9k6i"
+            href="https://youtu.be/HiDEVZnfhYM"
             target="_blank"
             rel="noreferrer"
           >
-            <h3>this is a ytContent</h3>
+            <h3>Storage Variable in YUL</h3>
           </a>
         </div>
       </div>

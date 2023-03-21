@@ -23,6 +23,7 @@ import { HiMoon } from "react-icons/hi";
 import Helmet from "react-helmet";
 import Projects from "./Projects/Project";
 import MyProjects from "./Projects2/MyProjects";
+import Ytvideos from "./Ytvideos";
 
 function About() {
   let x = " ✋";
@@ -269,10 +270,12 @@ function About() {
           {/* <section className="about">
             <Projects />
           </section> */}
-          <section className="about" id="myPtojects">
+          <section className="about" id="myProjects">
             <MyProjects />
           </section>
-          {/* <Ytvideos /> */}
+          <section className="about" id="ytVideos">
+            <Ytvideos />
+          </section>
           <section className="about" id="education">
             <h2 className="title">Education</h2>
             <hr className="hr" />
