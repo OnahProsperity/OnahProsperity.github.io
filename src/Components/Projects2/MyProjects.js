@@ -18,7 +18,6 @@ function MyProjects() {
   // const [files, setfiles] = useState(false);
 
   const ActiveFile = files[activeFile];
-  console.log(files, "the files");
 
   return (
     <>
@@ -27,9 +26,7 @@ function MyProjects() {
       <div className="button__container">
         <div className="button">
           {Object.keys(files).map((fileName) => (
-            <div 
-            className="content_button"
-            >
+            <div className="content_button">
               <button
                 className="my__button"
                 key={fileName}
@@ -41,7 +38,8 @@ function MyProjects() {
             </div>
           ))}
           <div className="activeFile">
-            {ActiveFile && <ActiveFile />}
+            {/* this is what i comment, that makes the onClick f(X) not to work  */}
+            {/* {ActiveFile && <ActiveFile />} */}
             {/* <ActiveFile /> */}
           </div>
         </div>
