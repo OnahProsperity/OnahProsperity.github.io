@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { Navbar, Nav } from "react-bootstrap";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-
 import "./About.css";
 
+import { ImArrowDown } from "react-icons/im";
 import {
   FaGithub,
   FaTwitter,
@@ -21,6 +21,8 @@ import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
 import Helmet from "react-helmet";
+import Projects from "./Projects/Project";
+import MyProjects from "./Projects2/MyProjects";
 
 function About() {
   let x = " ✋";
@@ -70,9 +72,6 @@ function About() {
       padding-bottom: 0px;
       width: 60px;
     }
-    .details {
-      margin-left: -15px;
-    }
   `;
   return (
     <div data-theme={theme}>
@@ -101,8 +100,9 @@ function About() {
               </Link>
               <ul>
                 <li>
-                  <a className="details" href="#">
+                  <a className="details">
                     Details
+                    <ImArrowDown />
                   </a>
                   <div className="dropdown-menu">
                     <ul>
@@ -158,7 +158,7 @@ function About() {
         <div className="leftside" onClick={showSidebar}>
           <ul className={isMobile ? "active" : "sidebar"}>
             <li className="home">
-              <a href="/">Home</a>
+              <Link to="/">Home</Link>
             </li>
             <li>
               <a href="#about">About</a>
@@ -220,10 +220,11 @@ function About() {
               </li>
               <li>
                 <a
-                  href="https://www.linkedin.com/in/prosper-otor-3050791a6"
+                  href="https://www.linkedin.com/in/prosper-o-3050791a6/"
                   target="_blank"
                   aria-label="my linkedin"
                   alt="linkedin"
+                  rel="noreferrer"
                 >
                   <FaLinkedin />
                 </a>
@@ -234,6 +235,7 @@ function About() {
                   alt="telegram"
                   aria-label="my telegram"
                   target="_blank"
+                  rel="noreferrer"
                 >
                   <FaTelegram />
                 </a>
@@ -256,6 +258,7 @@ function About() {
                 href="https://www.rigelprotocol.com/"
                 target="_blank"
                 aria-label="rigel protocol com"
+                rel="noreferrer"
               >
                 Rigel Protocol Lab.
               </a>
@@ -263,7 +266,13 @@ function About() {
               and opportunities for innovation.
             </p>
           </section>
-
+          {/* <section className="about">
+            <Projects />
+          </section> */}
+          <section className="about" id="myPtojects">
+            <MyProjects />
+          </section>
+          {/* <Ytvideos /> */}
           <section className="about" id="education">
             <h2 className="title">Education</h2>
             <hr className="hr" />
@@ -444,7 +453,6 @@ function About() {
               </div>
             </div>
           </section>
-
           <section className="about" id="skills">
             <h2 className="title">Skills</h2>
             <hr className="hr" />
@@ -463,7 +471,6 @@ function About() {
               <li>Git</li>
             </div>
           </section>
-
           <section className="about" id="openSource">
             <h2 className="title">Open-source / Achievement</h2>
             <hr className="hr" />
@@ -479,6 +486,7 @@ function About() {
             <a
               href="https://github.com/ethereum/EIPs/pull/5008"
               target="_blank"
+              rel="noreferrer"
               aria-label="rigel protocol farming"
             >
               <b>Ethereum Foundation:</b>
@@ -491,6 +499,7 @@ function About() {
               href="https://github.com/ethereum/EIPs/pull/5008"
               target="_blank"
               aria-label="rigel protocol farming"
+              rel="noreferrer"
             >
               <b>Lukso:</b>
             </a>
@@ -501,6 +510,7 @@ function About() {
               href="https://github.com/lukso-network/lsp-smart-contracts/pull/183"
               target="_blank"
               aria-label="rigel protocol farming"
+              rel="noreferrer"
             >
               <b>Deployment MD</b>
             </a>
@@ -515,6 +525,7 @@ function About() {
               href="https://github.com/ethereum/EIPs/pull/5008"
               target="_blank"
               aria-label="rigel protocol farming"
+              rel="noreferrer"
             >
               <b>Truffle:</b>
             </a>
@@ -525,11 +536,11 @@ function About() {
               href="https://www.npmjs.com/package/cexdb"
               target="_blank"
               aria-label="rigel protocol farming"
+              rel="noreferrer"
             >
               <b> Open-source:</b>
             </a>
           </section>
-
           <section className="about" id="research">
             <h2 className="title">Research</h2>
             <hr className="hr" />
@@ -547,7 +558,6 @@ function About() {
               <li>CAIRO SHA 256 Algorithm.</li>
             </div>
           </section>
-
           <section className="about" id="project">
             <h2 className="title">Projects</h2>
             <Helmet>
@@ -565,6 +575,7 @@ function About() {
               alt="rigelprotocol"
               target="_blank"
               aria-label="rigel protocol"
+              rel="noreferrer"
             >
               Direct cross chain swapping
             </a>
@@ -577,6 +588,7 @@ function About() {
               href="https://smartswap.rigelprotocol.com/#/farming-v2"
               target="_blank"
               aria-label="rigel protocol farming"
+              rel="noreferrer"
             >
               Yield Farm
             </a>
@@ -588,6 +600,7 @@ function About() {
               href="https://smartswap.rigelprotocol.com/#/farming-v2/staking-RGPv2"
               target="_blank"
               aria-label="rigel protocol staking"
+              rel="noreferrer"
             >
               Special Pool
             </a>
@@ -601,6 +614,7 @@ function About() {
               href="https://smartswap.rigelprotocol.com/#/nft"
               target="_blank"
               aria-label="rigel protocol com"
+              rel="noreferrer"
             >
               Rigel NFT
             </a>
@@ -612,6 +626,7 @@ function About() {
               href="https://smartswap.rigelprotocol.com/#/smartbid"
               target="_blank"
               aria-label="rigel protocol smartbib"
+              rel="noreferrer"
             >
               smart Bid
             </a>
@@ -626,6 +641,7 @@ function About() {
               href="https://launchpad.rigelprotocol.com/"
               target="_blank"
               aria-label="launchpad rigel protocol"
+              rel="noreferrer"
             >
               Launchpad
             </a>
@@ -638,6 +654,7 @@ function About() {
               href="https://gift.rigelprotocol.com/"
               target="_blank"
               aria-label="gift rigel protocol"
+              rel="noreferrer"
             >
               GiftDApp
             </a>
@@ -651,6 +668,7 @@ function About() {
               href="https://www.dexfinance.com/dexira/"
               target="_blank"
               aria-label="dex finance dexira"
+              rel="noreferrer"
             >
               DexIRA.Finance
             </a>
@@ -659,6 +677,7 @@ function About() {
               href="https://www.dexfinance.com/wp-content/uploads/2022/01/DEXIRA-SMART-CONTRACT-SECURITY-AUDIT.pdf"
               target="_blank"
               aria-label="dexfinace content uploads"
+              rel="noreferrer"
             >
               DexIRA.Finance Audit
             </a>
@@ -674,6 +693,7 @@ function About() {
               href="https://tikiswapfrontend.netlify.app/"
               target="_blank"
               aria-label="tikiSwap frontend"
+              rel="noreferrer"
             >
               Dex Migration
             </a>
@@ -686,6 +706,7 @@ function About() {
               href="https://casino.bscgames.win/"
               target="_blank"
               aria-label="casino games"
+              rel="noreferrer"
             >
               BSCG Game
             </a>
@@ -699,6 +720,7 @@ function About() {
               href="https://jdbglobal.netlify.app/user/login"
               target="_blank"
               aria-label="global netlify"
+              rel="noreferrer"
             >
               JDBGlobal
             </a>
@@ -711,6 +733,7 @@ function About() {
               href="https://tokencheetah.com/"
               target="_blank"
               aria-label="token cheetah"
+              rel="noreferrer"
             >
               Cheetah.finance
             </a>
@@ -719,6 +742,7 @@ function About() {
               href="https://eu.docs.wps.com/l/sALmM9UutssFV6P24hKynFA"
               target="_blank"
               aria-label="docs wps"
+              rel="noreferrer"
             >
               Bida Finance ICO Audit
             </a>
@@ -727,6 +751,7 @@ function About() {
               href="https://bida.finance/quickstart"
               target="_blank"
               aria-label="bida finance"
+              rel="noreferrer"
             >
               Bida Finance ICO
             </a>
@@ -754,6 +779,7 @@ function About() {
                   href="https://github.com/OnahProsperity"
                   target="_blank"
                   aria-label="my github"
+                  rel="noreferrer"
                 >
                   <FaGithub />
                 </a>
@@ -763,15 +789,17 @@ function About() {
                   href="https://twitter.com/OnahProsperity"
                   target="_blank"
                   aria-label="my twitter"
+                  rel="noreferrer"
                 >
                   <FaTwitter />
                 </a>
               </li>
               <li>
                 <a
-                  href="https://www.linkedin.com/in/prosper-otor-3050791a6"
+                  href="https://www.linkedin.com/in/prosper-o-3050791a6/"
                   target="_blank"
                   aria-label="my linkedin"
+                  rel="noreferrer"
                 >
                   <FaLinkedin />
                 </a>
@@ -781,6 +809,7 @@ function About() {
                   href="https://t.me/Encryption01"
                   target="_blank"
                   aria-label="my telegram"
+                  rel="noreferrer"
                 >
                   <FaTelegram />
                 </a>

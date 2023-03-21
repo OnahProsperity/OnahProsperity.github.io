@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaGithub, FaTelegram, FaTwitter, FaLinkedin } from "react-icons/fa";
-
+import { RiFoldersFill } from "react-icons/ri";
 import useLocalStorage from "use-local-storage";
 import { CgSun } from "react-icons/cg";
 import { HiMoon } from "react-icons/hi";
@@ -33,10 +33,11 @@ function Home() {
             </i>
           </div>
           <div>
-            <h1>Onah Prosper</h1>
+            <h1 className="engrave">Onah Prosper</h1>
             <h3>Web and Blockchain Developer</h3>
           </div>
           <Link to="/about" className="discover">
+            <RiFoldersFill />
             Discover More
           </Link>
           <ul>
@@ -62,7 +63,7 @@ function Home() {
             </li>
             <li>
               <a
-                href="https://www.linkedin.com/in/prosper-otor-3050791a6"
+                href="https://www.linkedin.com/in/prosper-o-3050791a6/"
                 alt="linkeden"
                 aria-label="my linkedin"
                 target=" _blank"

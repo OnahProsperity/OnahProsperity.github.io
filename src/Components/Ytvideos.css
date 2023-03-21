@@ -1,0 +1,36 @@
+.yt_container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: auto;
+  margin: 1.5rem;
+}
+
+.yt_content {
+  margin: auto;
+  border-radius: 0.5rem;
+  border: 1px solid var(--text-secondary);
+  object-fit: contain;
+}
+
+.yt {
+  margin-left: 2rem;
+}
+
+.yt_hr {
+  width: 97%;
+}
+
+.yt_img > img {
+  width: auto;
+  height: 12rem;
+}
+
+@media (max-width: 980px) {
+  .yt_container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .yt_content {
+    margin-top: 2rem;
+  }
+}

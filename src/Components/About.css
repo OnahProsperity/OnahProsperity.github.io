@@ -5,8 +5,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: var(--font-family);
 }
 
 :root {
@@ -14,6 +13,7 @@ body {
   --text-primary: rgb(95, 91, 91);
   --text-secondary: #2c3e50;
   --fade: rgb(248, 247, 247);
+  --hover: rgb(93, 104, 164);
 
   /* --border: rgb(2, 2, 2); */
   /* --form-bg: #fff; */
@@ -24,9 +24,22 @@ body {
   --text-primary: rgb(163, 159, 159);
   --text-secondary: rgb(179, 186, 194);
   --fade: rgb(39, 45, 58);
+  --hover: rgb(93, 104, 164);
 
   /* --border: #ffffff; */
   /* --form-bg: #191919; */
+}
+
+
+
+
+.details {
+  display: flex;
+  margin-left: -15px;
+  padding: 5px;
+  justify-content: center;
+  align-items: center;
+  color: #000000;
 }
 
 .fade {
@@ -87,13 +100,14 @@ body {
 .leftside {
   flex: 1;
   margin-top: 45px;
+  background-color: var(--background);
 }
 
 .sidebar {
   display: block;
   position: fixed;
   height: 625px;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
   padding: 34px 25px;
   box-sizing: border-box;
 }
@@ -102,7 +116,7 @@ body {
   display: block;
   position: fixed;
   height: 625px;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
   padding: 34px 25px;
   box-sizing: border-box;
   background-color: var(--background);
@@ -141,6 +155,15 @@ body {
   text-decoration: none;
   color: var(--text-secondary);
 }
+.sidebar a:hover {
+  color: var(--hover);
+}
+.sidebar a:focus {
+  background-color: red;
+}
+.fixed-color a {
+  background-color: black;
+}
 
 .menu-bar {
   display: flex;
@@ -178,6 +201,9 @@ body {
   padding: 4px;
   color: var(--text-primary);
 }
+.dropdown-menu li a:hover {
+  color: var(--hover);
+}
 
 .menu-bar ul li:focus .dropdown-menu ul li {
   color: red;
@@ -193,11 +219,11 @@ body {
 .menu-bar ul li:hover .dropdown-menu ul {
   display: block;
   margin-left: 25px;
-  margin-top: 10px;
+  margin-top: 1px;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  border: 1px solid rgb(193, 193, 204);
+  box-shadow: var(--box-shadow);
   background-color: var(--background);
 }
 
@@ -230,6 +256,7 @@ body {
 .about {
   padding: 20px;
   color: var(--text-primary);
+  padding-top: 4.5rem;
 }
 
 .about p {
@@ -291,12 +318,11 @@ div .Item li {
     color: #8f969c;
     cursor: pointer;
 
-    /* transition-delay: 850ms; */
   }
 
   .rightside {
     margin-top: 75px;
-    padding-right: 0rem;
+    /* padding-right: 0rem; */
   }
 
   .about-nav {
@@ -305,7 +331,6 @@ div .Item li {
 
   .sidebar {
     display: none;
-    /* transition: 2s; */
   }
 
   .menu-bar {
