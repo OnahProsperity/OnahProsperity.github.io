@@ -273,9 +273,7 @@ function About() {
           <section className="about" id="myProjects">
             <MyProjects />
           </section>
-          <section className="about" id="ytVideos">
-            <Ytvideos />
-          </section>
+
           <section className="about" id="education">
             <h2 className="title">Education</h2>
             <hr className="hr" />
@@ -474,6 +472,12 @@ function About() {
               <li>Git</li>
             </div>
           </section>
+
+          <section className="about" id="ytVideos">
+            <Ytvideos />
+          </section>
+
+          {/* PROJECTS */}
           <section className="about" id="openSource">
             <h2 className="title">Open-source / Achievement</h2>
             <hr className="hr" />

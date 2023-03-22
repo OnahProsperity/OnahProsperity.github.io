@@ -8,8 +8,10 @@
 .yt_content {
   margin: auto;
   border-radius: 0.5rem;
-  border: 1px solid var(--text-secondary);
+  /* border: 1px solid var(--text-secondary); */
+  background-color: rgb(7, 14, 33);
   object-fit: contain;
+  box-shadow: inset;
 }
 
 .yt {
