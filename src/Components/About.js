@@ -237,17 +237,6 @@ function About() {
                            <FaLinkedin />
                         </a>
                      </li>
-                     {/* <li>
-                <a
-                  href="https://prosperauthor@gmail.com"
-                  alt="gmail"
-                  aria-label="my mail"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <FiMail />
-                </a>
-              </li> */}
                   </ul>
                </header>
                <section className="about" id="about">
