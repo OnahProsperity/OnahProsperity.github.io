@@ -198,7 +198,10 @@ function About() {
                <header className="Header">
                   <div>
                      <h2>Onah Prosper</h2>
-                     <p>Smart Contract Engineer/Auditor</p>
+                     <p>
+                        {' '}
+                        Blockchain security researcher/Smart Contract Engineer
+                     </p>
                   </div>
                   <ul className="social">
                      <li>
@@ -251,19 +254,20 @@ function About() {
                   <h2 className="title">Objective</h2>
                   <hr className="hr" />
                   <p className="aboutme">
-                     Seeking a position as a Smart Contract Security Analyst to
-                     leverage my expertise in cybersecurity and smart contract
-                     audits, with a focus on reviewing and enhancing blockchain
-                     projects security.
+                     As a Smart Contract Security researcher I am leveraging my
+                     expertise as a Defi protocol engineer, and blockchain
+                     security researcher, with a focus on building, reviewing
+                     and enhancing blockchain projects security.
                   </p>
 
                   <h2 className="title">Summary</h2>
                   <p className="aboutMe">
-                     Experienced Smart contract Engineer professional with a
-                     strong background in smart contract security auditing and
-                     blockchain technologies. Adept at identifying
-                     vulnerabilities, providing actionable recommendations, and
-                     mentoring engineering teams in security best practices.
+                     Experienced Smart contract Engineer, professional with a
+                     strong background in smart contract security and DEFI
+                     protocol Engineer. Adept in building Defi protocols,
+                     identifying vulnerabilities, providing actionable
+                     recommendations, and mentoring engineering teams in
+                     security best practices.
                   </p>
                </section>
                {/* <section className="about">
@@ -280,17 +284,19 @@ function About() {
 
                   <div className="expdiv">
                      <HiBadgeCheck className="check" />
-                     <span>Smart Contract Engineer @Posley</span>
+                     <span>
+                        Smart Contract Engineer{' '}
+                        <a href="https://www.vaultka.com/">@Vaultka</a>
+                     </span>
                      <br />
                      <VscCalendar className="check" />
 
                      <span>January 2023.... Present</span>
                      <div className="Item">
-                        <li>conduct internal audits of smart contracts.</li>
+                        <li>Conduct internal audits of smart contracts.</li>
                         <li>
-                           Developed and worked on DeFi protocols and smart
-                           contracts, strengthening knowledge in blockchain
-                           security.
+                           Developed and worked on DeFi protocols strengthening
+                           knowledge in blockchain security.
                         </li>
                         <li>
                            Proactively solved problems and played a key role in
@@ -300,8 +306,8 @@ function About() {
                            Proactively solved problems and played a key role in
                            mitigating security risks.
                         </li>
-                        <li>participated in writing smart contracts.</li>
-                        <li>participated in research work.</li>
+                        <li>Participated in building Perpetual DEXs.</li>
+                        <li>Participated in research work.</li>
                      </div>
                      <div className="skills">
                         <GiSkills className="check" />
@@ -316,16 +322,19 @@ function About() {
 
                   <div className="expdiv">
                      <HiBadgeCheck className="check" />
-                     <span>Smart Contract Auditor/Engineer @Nethermind.io</span>
+                     <span>
+                        Smart Contract Auditor/Engineer{' '}
+                        <a href="https://www.nethermind.io/">@Nethermind.io</a>
+                     </span>
                      <br />
                      <VscCalendar className="check" />
 
                      <span>October 2022 - December 2022</span>
                      <div className="Item">
-                        <li>participated in audits of smart contracts.</li>
-                        <li>participated In the documentation of reports.</li>
-                        <li>participated in writing smart contracts.</li>
-                        <li>participated in research work</li>
+                        <li>Participated in audits of smart contracts.</li>
+                        <li>Participated In the documentation of reports.</li>
+                        <li>Participated in writing smart contracts.</li>
+                        <li>Participated in research work</li>
                         <li>
                            Reviewed and analyzed numerous smart contracts to
                            ensure compliance with the highest industry security
@@ -378,7 +387,12 @@ function About() {
 
                   <div className="expdiv">
                      <HiBadgeCheck className="check" />
-                     <span>Lead Blockchain Engineer @RigelProtocol</span>
+                     <span>
+                        Lead Blockchain Engineer{' '}
+                        <a href="https://www.rigelprotocol.com/">
+                           @RigelProtocol
+                        </a>
+                     </span>
                      <br />
                      <VscCalendar className="check" />
                      <span>Mar 2021 - October 2022</span>
