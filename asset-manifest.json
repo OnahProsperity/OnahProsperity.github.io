@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.c012a1f7.css",
-    "main.js": "/static/js/main.1544e512.js",
+    "main.css": "/static/css/main.4a754834.css",
+    "main.js": "/static/js/main.61e3155c.js",
     "static/media/intro.png": "/static/media/intro.dd1697cfbc2b1f9e9187.png",
     "static/media/bida2.png": "/static/media/bida2.83729d43134ed2988486.png",
     "static/media/voldka.jpg": "/static/media/voldka.7220d16310e181a9ed0b.jpg",
@@ -9,15 +9,15 @@
     "static/media/quill-test.jpg": "/static/media/quill-test.70d180b3234d44164c6c.jpg",
     "static/media/hallborn.jpg": "/static/media/hallborn.a5c242621347ae370d34.jpg",
     "static/media/yull.png": "/static/media/yull.e17a6fd01242a07ddf00.png",
-    "static/media/paycrest.png": "/static/media/paycrest.c63153cf36ac30e82117.png",
+    "static/media/white-paycrest.png": "/static/media/white-paycrest.c63153cf36ac30e82117.png",
     "static/media/rigel-protocol.jpg": "/static/media/rigel-protocol.af91061c9f2bab57144f.jpg",
     "static/media/dexira.jpg": "/static/media/dexira.37f1e896c65a59392b36.jpg",
     "index.html": "/index.html",
-    "main.c012a1f7.css.map": "/static/css/main.c012a1f7.css.map",
-    "main.1544e512.js.map": "/static/js/main.1544e512.js.map"
+    "main.4a754834.css.map": "/static/css/main.4a754834.css.map",
+    "main.61e3155c.js.map": "/static/js/main.61e3155c.js.map"
   },
   "entrypoints": [
-    "static/css/main.c012a1f7.css",
-    "static/js/main.1544e512.js"
+    "static/css/main.4a754834.css",
+    "static/js/main.61e3155c.js"
   ]
 }
