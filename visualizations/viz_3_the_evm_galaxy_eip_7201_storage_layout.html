@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The EVM Galaxy: EIP 7201 Storage Layout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .galaxy-container {
+            width: 100%;
+            max-width: 1300px;
+            height: 850px;
+            background: radial-gradient(ellipse at center, #050510 0%, #000000 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Star Field */
+        .stars-far {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 5% 15%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 12% 42%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 18% 78%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 25% 25%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 32% 62%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 38% 8%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 45% 88%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 52% 35%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 58% 55%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 65% 18%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 72% 72%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 78% 45%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 85% 92%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 92% 28%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 95% 65%, rgba(255,255,255,0.3), transparent);
+            animation: starsFloat 100s linear infinite;
+        }
+
+        .stars-near {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 8% 32%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 22% 58%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 35% 12%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1.5px 1.5px at 48% 78%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 62% 38%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 75% 85%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 88% 52%, rgba(255,255,255,0.6), transparent);
+            animation: starsFloat 60s linear infinite reverse;
+        }
+
+        @keyframes starsFloat {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+
+        /* Header */
+        .header-text {
+            position: absolute;
+            top: 18px;
+            left: 25px;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        .header-title {
+            font-size: clamp(14px, 2.2vw, 24px);
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .header-subtitle {
+            font-size: clamp(9px, 1vw, 11px);
+            color: rgba(165, 180, 252, 0.7);
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .footer-text {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 7s forwards;
+            width: 90%;
+            max-width: 900px;
+            padding: 0 12px;
+        }
+
+        .footer-main {
+            font-family: 'Fira Code', monospace;
+            font-size: clamp(7px, 1vw, 10px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .footer-highlight {
+            color: rgba(139, 92, 246, 0.9);
+            font-weight: 600;
+        }
+
+        .footer-highlight-green {
+            color: rgba(34, 197, 94, 0.9);
+            font-weight: 600;
+        }
+
+        .footer-sub {
+            font-size: clamp(6px, 0.85vw, 9px);
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 4px;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        /* Contract Address */
+        .address-display {
+            position: absolute;
+            top: 18px;
+            right: 25px;
+            text-align: right;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3.5s forwards;
+        }
+
+        .address-label {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .address-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            color: rgba(79, 209, 197, 0.8);
+            background: rgba(79, 209, 197, 0.1);
+            padding: 5px 9px;
+            border-radius: 5px;
+            border: 1px solid rgba(79, 209, 197, 0.2);
+        }
+
+        /* The Dome Container */
+        .dome-container {
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 440px;
+            height: 440px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dome Barrier */
+        .dome-barrier {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            animation: domeAppear 2s ease-out 1s forwards;
+        }
+
+        .dome-outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: 
+                linear-gradient(#000, #000) padding-box,
+                linear-gradient(135deg, 
+                    rgba(139, 92, 246, 0.6) 0%, 
+                    rgba(79, 209, 197, 0.4) 25%,
+                    rgba(139, 92, 246, 0.6) 50%,
+                    rgba(79, 209, 197, 0.4) 75%,
+                    rgba(139, 92, 246, 0.6) 100%
+                ) border-box;
+            animation: ringRotate 15s linear infinite;
+            box-shadow:
+                0 0 25px rgba(139, 92, 246, 0.25),
+                0 0 50px rgba(139, 92, 246, 0.12),
+                inset 0 0 25px rgba(139, 92, 246, 0.06);
+        }
+
+        .dome-hex-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0;
+            animation: hexGridAppear 1.5s ease-out 1.5s forwards;
+        }
+
+        .dome-hex-grid::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background-image: 
+                linear-gradient(30deg, rgba(139, 92, 246, 0.06) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.06) 87.5%),
+                linear-gradient(150deg, rgba(139, 92, 246, 0.06) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.06) 87.5%),
+                linear-gradient(30deg, rgba(139, 92, 246, 0.06) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.06) 87.5%),
+                linear-gradient(150deg, rgba(139, 92, 246, 0.06) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.06) 87.5%),
+                linear-gradient(60deg, rgba(79, 209, 197, 0.04) 25%, transparent 25.5%, transparent 75%, rgba(79, 209, 197, 0.04) 75%),
+                linear-gradient(60deg, rgba(79, 209, 197, 0.04) 25%, transparent 25.5%, transparent 75%, rgba(79, 209, 197, 0.04) 75%);
+            background-size: 35px 60px;
+            background-position: 0 0, 0 0, 17.5px 30px, 17.5px 30px, 0 0, 17.5px 30px;
+            animation: hexPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes hexPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .dome-inner-glow {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.03) 0%, transparent 70%);
+            top: 5%;
+            left: 5%;
+        }
+
+        /* Perimeter pulses */
+        .dome-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            opacity: 0;
+        }
+
+        .dome-pulse-1 { animation: pulseExpand 3s ease-out infinite; }
+        .dome-pulse-2 { animation: pulseExpand 3s ease-out infinite 1s; }
+        .dome-pulse-3 { animation: pulseExpand 3s ease-out infinite 2s; }
+
+        @keyframes pulseExpand {
+            0% { transform: scale(1); opacity: 0.4; border-color: rgba(139, 92, 246, 0.35); }
+            100% { transform: scale(1.25); opacity: 0; border-color: rgba(139, 92, 246, 0); }
+        }
+
+        /* Perimeter labels */
+        .perimeter-label {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            font-size: 8px;
+            color: rgba(139, 92, 246, 0.45);
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3s forwards;
+        }
+
+        .perimeter-top { top: -20px; left: 50%; transform: translateX(-50%); }
+        .perimeter-bottom { bottom: -20px; left: 50%; transform: translateX(-50%); }
+        .perimeter-left { left: -38px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        .perimeter-right { right: -38px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+        /* Arrival Trail */
+        .arrival-trail {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 40%;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(139, 92, 246,  0.1) 20%,
+                rgba(139, 92, 246, 0.5) 80%,
+                rgba(255, 255, 255, 0.9) 100%
+            );
+            opacity: 0;
+            z-index: 70;
+            filter: blur(0.5px);
+        }
+
+        .arrival-trail.animate {
+            animation: trailFall 1.8s ease-in forwards;
+        }
+
+        @keyframes trailFall {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-100%); }
+            20% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(22%); }
+        }
+
+        /* Impact Flash */
+        .impact-flash {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            top: 48%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(139, 92, 246, 0.6) 25%,
+                rgba(139, 92, 246, 0.2) 50%,
+                transparent 70%
+            );
+            opacity: 0;
+            pointer-events: none;
+            z-index: 65;
+        }
+
+        .impact-flash.animate {
+            animation: impactFlash 1s ease-out forwards;
+        }
+
+        @keyframes impactFlash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            25% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5); }
+        }
+
+        /* Storage Grid Inside Dome */
+        .storage-grid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+
+        /* Beacon / Slot 0 - Origin Point */
+        .beacon-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+        }
+
+        .beacon-core {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            top: 50%;
+            left:  50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .beacon-core.animate {
+            animation: beaconAppear 1s ease-out forwards;
+        }
+
+        .beacon-core.pulse {
+            animation: beaconPulse 0.8s ease-out;
+        }
+
+        .beacon-outer-glow {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.35) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 70%);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        .beacon-atmosphere {
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            top: -20%;
+            left: -20%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79, 209, 197, 0.18) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 70%);
+            animation: atmospherePulse 4s ease-in-out infinite;
+        }
+
+        .beacon-surface {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 30% 30%,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(200, 180, 255, 0.9) 20%,
+                rgba(139, 92, 246, 0.95) 55%,
+                rgba(90, 60, 180, 1) 100%
+            );
+            box-shadow:
+                0 0 28px rgba(139, 92, 246, 0.9),
+                0 0 55px rgba(139, 92, 246, 0.6),
+                0 0 90px rgba(139, 92, 246, 0.35),
+                inset -7px -7px 22px rgba(0, 0, 0, 0.3),
+                inset 4px 4px 14px rgba(255, 255, 255, 0.25);
+        }
+
+        @keyframes beaconAppear {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes beaconPulse {
+            0% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+            50% { transform: translate(-50%, -50%) scale(1.4); filter: brightness(1.6); }
+            100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 0.9; }
+        }
+
+        @keyframes atmospherePulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        /* Slot 0 Label */
+        .slot0-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            white-space: nowrap;
+            opacity: 0;
+        }
+
+        .slot0-label.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .slot0-label-main {
+            font-family: 'Fira Code', monospace;
+            font-size: 8px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+        }
+
+        .slot0-label-sub {
+            font-size: 7px;
+            color: rgba(139, 92, 246, 0.55);
+            margin-top: 2px;
+        }
+
+        /* Debris Particles */
+        .debris-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(139, 92, 246, 0.9);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+        }
+
+        .debris-particle.animate {
+            animation: debrisFloat 1.5s ease-out forwards;
+        }
+
+        .debris-1 { --dx: -70px; --dy: -50px; }
+        .debris-2 { --dx: 65px; --dy: -40px; }
+        .debris-3 { --dx: -40px; --dy: 65px; }
+        .debris-4 { --dx: 55px; --dy: 75px; }
+        .debris-5 { --dx: -80px; --dy: 12px; }
+        .debris-6 { --dx: 75px; --dy: -22px; }
+        .debris-7 { --dx: 25px; --dy: -80px; }
+        .debris-8 { --dx: -30px; --dy: 80px; }
+
+        .debris-1.animate { animation-delay: 0ms; }
+        .debris-2.animate { animation-delay: 40ms; }
+        .debris-3.animate { animation-delay: 80ms; }
+        .debris-4.animate { animation-delay: 120ms; }
+        .debris-5.animate { animation-delay: 20ms; }
+        .debris-6.animate { animation-delay: 60ms; }
+        .debris-7.animate { animation-delay: 100ms; }
+        .debris-8.animate { animation-delay: 140ms; }
+
+        @keyframes debrisFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(2); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); }
+        }
+
+        /* ================================================ */
+        /*     RIGHT SIDE - DEFAULT SOLIDITY STORAGE        */
+        /* ================================================ */
+
+        .horizontal-slots {
+            position: absolute;
+            top: 50%;
+            left: calc(50% + 45px);
+            transform: translateY(-50%);
+            display: flex;
+            gap: 7px;
+            z-index: 45;
+        }
+
+        .h-connection {
+            position: absolute;
+            top: 50%;
+            left: calc(50% + 22px);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(79, 209, 197, 0.7), rgba(79, 209, 197, 0.3));
+            transform: translateY(-50%);
+            opacity: 0;
+            z-index: 40;
+        }
+
+        .h-connection.animate {
+            animation: hConnectionGrow 0.6s ease-out forwards;
+        }
+
+        @keyframes hConnectionGrow {
+            0% { width: 0; opacity: 0; }
+            100% { width: 23px; opacity: 1; }
+        }
+
+        /* Storage Slot */
+        .storage-slot {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(8, 12, 25, 0.95);
+            border: 1.5px solid rgba(79, 209, 197, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-12px) scale(0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .storage-slot:hover {
+            border-color: rgba(79, 209, 197, 0.9);
+            background: rgba(79, 209, 197, 0.12);
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 22px rgba(79, 209, 197, 0.4);
+        }
+
+        .storage-slot.animate {
+            animation: slotAppearH 0.5s ease-out forwards;
+        }
+
+        .storage-slot:nth-child(1).animate { animation-delay: 0ms; }
+        .storage-slot:nth-child(2).animate { animation-delay: 70ms; }
+        .storage-slot:nth-child(3).animate { animation-delay: 140ms; }
+
+        @keyframes slotAppearH {
+            0% { opacity: 0; transform: translateX(-12px) scale(0.8); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .slot-index {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(79, 209, 197, 0.6);
+        }
+
+        .slot-star {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(79, 209, 197, 0.9));
+            box-shadow: 0 0 7px rgba(79, 209, 197, 0.7), 0 0 14px rgba(79, 209, 197, 0.35);
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        .slot-star.array-marker {
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(251, 146, 60, 0.9));
+            box-shadow: 0 0 7px rgba(251, 146, 60, 0.7), 0 0 14px rgba(251, 146, 60, 0.35);
+        }
+
+        .slot-star.empty {
+            width: 6px;
+            height: 6px;
+            background: rgba(79, 209, 197, 0.2);
+            box-shadow: none;
+            animation: none;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.9); }
+        }
+
+        .slot-type {
+            font-family: 'Fira Code', monospace;
+            font-size: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 3px;
+        }
+
+        .slot-bytes {
+            position: absolute;
+            bottom: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 5px;
+            color: rgba(79, 209, 197, 0.4);
+            white-space: nowrap;
+        }
+
+        .storage-slot.has-array {
+            border-color: rgba(251, 146, 60, 0.4);
+        }
+
+        .storage-slot.has-array:hover {
+            border-color: rgba(251, 146, 60, 0.9);
+            background: rgba(251, 146, 60, 0.12);
+            box-shadow: 0 0 22px rgba(251, 146, 60, 0.4);
+        }
+
+        /* Horizontal Direction Arrow */
+        .h-arrow {
+            position: absolute;
+            top: calc(50% - 35px);
+            left: calc(50% + 45px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            opacity: 0;
+            z-index: 50;
+        }
+
+        .h-arrow.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .arrow-line-h {
+            width: 48px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(79, 209, 197, 0.5), rgba(79, 209, 197, 0.1));
+            position: relative;
+        }
+
+        .arrow-line-h::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -3px;
+            border: 4px solid transparent;
+            border-left: 5px solid rgba(79, 209, 197, 0.5);
+        }
+
+        .arrow-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(79, 209, 197, 0.6);
+            white-space: nowrap;
+        }
+
+        /* Array Connector - UP
+           Starts from the top edge of the horizontal-slots row (50% - 20px = top of 40px-tall slots)
+           and goes upward to meet the bottom of the vertical-slots column.
+           Left is aligned to centre of the 2nd horizontal slot (Slot 2, the array length slot).
+           Slot 2 centre = 50% + 45px (h-slots left) + 40px (slot1 width) + 7px (gap) + 20px (half slot2) = 50% + 112px */
+        .array-connector {
+            position: absolute;
+            /* bottom edge sits at the top of the h-slots (center - half slot height) */
+            bottom: calc(50% + 20px);
+            left: calc(50% + 112px);
+            width: 2px;
+            height: 0;
+            background: rgba(251, 146, 60, 0.5);
+            opacity: 0;
+            z-index: 40;
+        }
+
+        .array-connector.animate {
+            animation: arrayConnectorGrow 0.5s ease-out forwards;
+        }
+
+        @keyframes arrayConnectorGrow {
+            0% { height: 0; opacity: 0; }
+            100% { height: 22px; opacity: 1; }
+        }
+
+        /* Vertical Slots (Arrays) - going UP
+           Left-aligned with Slot 2 centre: 50% + 112px - 19px (half slot width 38px) = 50% + 93px
+           Bottom starts clearly above the h-slots row: 50% + 42px (top of h-slots) + 22px (connector) */
+        .vertical-slots {
+            position: absolute;
+            bottom: calc(50% + 64px);
+            left: calc(50% + 93px);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 5px;
+            z-index: 45;
+        }
+
+        .array-slot {
+            width: 38px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(8, 12, 25, 0.95);
+            border: 1.5px solid rgba(251, 146, 60, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px) scale(0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .array-slot:hover {
+            border-color: rgba(251, 146, 60, 0.9);
+            background: rgba(251, 146, 60, 0.12);
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 18px rgba(251, 146, 60, 0.4);
+        }
+
+        .array-slot.animate {
+            animation: slotAppearV 0.5s ease-out forwards;
+        }
+
+        .array-slot:nth-child(1).animate { animation-delay: 0ms; }
+        .array-slot:nth-child(2).animate { animation-delay: 70ms; }
+        .array-slot:nth-child(3).animate { animation-delay: 140ms; }
+
+        @keyframes slotAppearV {
+            0% { opacity: 0; transform: translateY(10px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .array-index {
+            position: absolute;
+            left: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 5px;
+            color: rgba(251, 146, 60, 0.5);
+        }
+
+        .array-star {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(251, 146, 60, 0.9));
+            box-shadow: 0 0 5px rgba(251, 146, 60, 0.6), 0 0 10px rgba(251, 146, 60, 0.3);
+            animation: starTwinkle 2.3s ease-in-out infinite;
+        }
+
+        .array-type {
+            font-family: 'Fira Code', monospace;
+            font-size: 4px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        /* Vertical Direction Arrow - UP
+           Sits just to the right of the array column: 50% + 93px + 38px + 6px = 50% + 137px */
+        .v-arrow {
+            position: absolute;
+            bottom: calc(50% + 64px);
+            left: calc(50% + 137px);
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            opacity: 0;
+            z-index: 50;
+        }
+
+        .v-arrow.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .arrow-line-v {
+            width: 2px;
+            height: 42px;
+            background: linear-gradient(0deg, rgba(251, 146, 60, 0.5), rgba(251, 146, 60, 0.1));
+            position: relative;
+        }
+
+        .arrow-line-v::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            border: 4px solid transparent;
+            border-bottom: 5px solid rgba(251, 146, 60, 0.5);
+        }
+
+        .v-arrow .arrow-text {
+            color: rgba(251, 146, 60, 0.6);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* Array Label — centred above the vertical slots column */
+        .array-label {
+            position: absolute;
+            bottom: calc(50% + 64px + 3 * 28px + 2 * 5px + 8px); /* above all 3 slots */
+            left: calc(50% + 112px);
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(251, 146, 60, 0.5);
+            white-space: nowrap;
+            opacity: 0;
+        }
+
+        .array-label.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Zone Label - Right Side */
+        .zone-label-right {
+            position: absolute;
+            top: calc(50% - 62px);
+            left: calc(50% + 80px);
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(79, 209, 197, 0.5);
+            padding: 3px 7px;
+            border: 1px dashed rgba(79, 209, 197, 0.3);
+            border-radius: 4px;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        .zone-label-right.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* ================================================ */
+        /*   NAMESPACE TRAVEL BEAM - from center to dest    */
+        /* ================================================ */
+
+        /* The traveling comet/beam that flies from center to the destination */
+        .namespace-comet {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(34, 197, 94, 0.9));
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.9), 0 0 24px rgba(34, 197, 94, 0.5);
+            opacity: 0;
+            z-index: 60;
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Destination beacon — a pulsing ring that marks the spot BEFORE the comet arrives */
+        .namespace-dest-beacon {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(34, 197, 94, 0.6);
+            opacity: 0;
+            z-index: 55;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+        }
+
+        .namespace-dest-beacon.animate {
+            animation: destBeaconPulse 0.7s ease-out forwards;
+        }
+
+        @keyframes destBeaconPulse {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            40%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+            70%  { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Namespace Spring of Light - impact burst at destination */
+        .namespace-spring {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.9), transparent);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.8);
+            opacity: 0;
+            z-index: 56;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+        }
+
+        .namespace-spring.animate {
+            animation: springAppear 1.0s ease-out forwards;
+        }
+
+        @keyframes springAppear {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            40%  { opacity: 1; transform: translate(-50%, -50%) scale(1.8); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+        }
+
+        /* Single Namespace Storage Slot */
+        .namespace-single-slot {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            background: rgba(8, 18, 12, 0.95);
+            border: 2px solid rgba(34, 197, 94, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            z-index: 45;
+        }
+
+        .namespace-single-slot:hover {
+            border-color: rgba(34, 197, 94, 0.9);
+            background: rgba(34, 197, 94, 0.15);
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+        }
+
+        .namespace-single-slot.animate {
+            animation: namespaceSingleAppear 0.8s ease-out forwards;
+        }
+
+        @keyframes namespaceSingleAppear {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .namespace-single-slot .slot-index {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(34, 197, 94, 0.7);
+            white-space: nowrap;
+        }
+
+        .namespace-single-slot .slot-star {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(34, 197, 94, 0.9));
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.8), 0 0 16px rgba(34, 197, 94, 0.4);
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        .namespace-single-slot .slot-type {
+            font-family: 'Fira Code', monospace;
+            font-size: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 3px;
+        }
+
+        .namespace-single-slot .slot-bytes {
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 5px;
+            color: rgba(34, 197, 94, 0.5);
+            white-space: nowrap;
+        }
+
+        /* ================================================ */
+        /*     COLLISION ZONE VISUALIZATION                 */
+        /* ================================================ */
+
+        .collision-zone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 440px;
+            height: 440px;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        .boundary-marker {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0.4));
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 6s forwards, collisionPulse 2s ease-in-out infinite 6.5s;
+        }
+
+        .boundary-marker-left {
+            top: auto;
+            right: auto;
+            bottom: -8px;
+            left: -8px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.3));
+        }
+
+        @keyframes collisionPulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .boundary-label {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(239, 68, 68, 0.7);
+            white-space: nowrap;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 6.2s forwards;
+        }
+
+        .boundary-label-right {
+            top: -25px;
+            right: -35px;
+        }
+
+        .boundary-label-left {
+            bottom: -25px;
+            left: -45px;
+        }
+
+        .collision-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            border: 1px dashed rgba(239, 68, 68, 0.15);
+            border-radius: 50%;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 6s forwards;
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 14px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 7s forwards;
+            z-index: 100;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.beacon {
+            background: radial-gradient(circle, #fff, rgba(139, 92, 246, 0.9));
+            box-shadow: 0 0 5px rgba(139, 92, 246, 0.6);
+        }
+
+        .legend-dot.default {
+            background: radial-gradient(circle, #fff, rgba(79, 209, 197, 0.9));
+            box-shadow: 0 0 4px rgba(79, 209, 197, 0.5);
+        }
+
+        .legend-dot.default-array {
+            background: radial-gradient(circle, #fff, rgba(251, 146, 60, 0.9));
+            box-shadow: 0 0 4px rgba(251, 146, 60, 0.5);
+        }
+
+        .legend-dot.namespace {
+            background: radial-gradient(circle, #fff, rgba(34, 197, 94, 0.9));
+            box-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+        }
+
+        .legend-dot.ns-array {
+            background: radial-gradient(circle, #fff, rgba(168, 85, 247, 0.9));
+            box-shadow: 0 0 4px rgba(168, 85, 247, 0.5);
+        }
+
+        .legend-dot.collision {
+            background: radial-gradient(circle, #fff, rgba(239, 68, 68, 0.9));
+            box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);
+        }
+
+        .legend-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes domeAppear {
+            0% { opacity: 0; transform: scale(0.3); }
+            60% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes hexGridAppear {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Responsive ─────────────────────────────────────── */
+
+        @media (max-width: 1000px) {
+            .galaxy-container { height: 700px; }
+            .dome-container { width: 360px; height: 360px; }
+            /* Slightly scale down fixed-px slot offsets by wrapping in a smaller scale */
+            .storage-grid { transform: translate(-50%, -50%) scale(0.9); }
+        }
+
+        @media (max-width: 760px) {
+            .galaxy-container { height: 580px; }
+            .dome-container { width: 300px; height: 300px; }
+            .storage-grid { transform: translate(-50%, -50%) scale(0.72); }
+            /* footer needs more room on small screens */
+            .footer-text { bottom: 6px; }
+            .legend { bottom: 28px; gap: 8px; }
+            /* hide decorative labels that overflow */
+            .zone-label-right,
+            .perimeter-label,
+            .h-arrow,
+            .v-arrow,
+            .array-label { display: none; }
+            /* address display — shrink */
+            .address-value { font-size: 8px; padding: 3px 6px; }
+            .address-label { font-size: 7px; }
+        }
+
+        @media (max-width: 500px) {
+            .galaxy-container { height: 520px; }
+            .dome-container { width: 260px; height: 260px; }
+            .storage-grid { transform: translate(-50%, -50%) scale(0.6); }
+            .header-text { top: 10px; left: 12px; }
+            .header-title { font-size: 14px; }
+            .header-subtitle { font-size: 10px; }
+            .address-display { top: 10px; right: 10px; }
+            .address-value { font-size: 7px; }
+            .footer-text { bottom: 4px; }
+            .legend { display: none; }
+        }
+
+        @media (max-width: 400px) {
+            .galaxy-container { height: 420px; }
+            .dome-container { width: 220px; height: 220px; }
+            .storage-grid { transform: translate(-50%, -50%) scale(0.5); }
+            .header-title { font-size: 12px; }
+            .header-subtitle { display: none; }
+            .address-display { display: none; }
+            .footer-text { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="galaxy-container">
+        <!-- Star field -->
+        <div class="stars-far"></div>
+        <div class="stars-near"></div>
+
+        <!-- Header -->
+        <div class="header-text">
+            <div class="header-title">The EVM Galaxy: Storage Collision Avoidance</div>
+            <div class="header-subtitle">Understanding EIP-7201 Namespaced Storage Layout</div>
+        </div>
+
+        <!-- Contract address -->
+        <div class="address-display">
+            <div class="address-label">CONTRACT</div>
+            <div class="address-value" id="contractAddress">0x0000...0000</div>
+        </div>
+
+        <!-- Arrival trail -->
+        <div class="arrival-trail" id="arrivalTrail"></div>
+
+        <!-- Impact flash -->
+        <div class="impact-flash" id="impactFlash"></div>
+
+        <!-- The Dome (2^256 Perimeter) -->
+        <div class="dome-container" id="domeContainer">
+            <div class="dome-barrier">
+                <div class="dome-outer-ring"></div>
+                <div class="dome-hex-grid"></div>
+                <div class="dome-inner-glow"></div>
+                
+                <div class="dome-pulse dome-pulse-1"></div>
+                <div class="dome-pulse dome-pulse-2"></div>
+                <div class="dome-pulse dome-pulse-3"></div>
+
+                <div class="perimeter-label perimeter-top">2^256 BOUNDARY</div>
+                <div class="perimeter-label perimeter-bottom">STORAGE SPACE</div>
+                <div class="perimeter-label perimeter-left">COLLISION ZONE</div>
+                <div class="perimeter-label perimeter-right">SAFE ZONE</div>
+            </div>
+
+            <!-- Storage Grid -->
+            <div class="storage-grid">
+                <!-- Beacon (Slot 0 origin) -->
+                <div class="beacon-container">
+                    <div class="beacon-core" id="beaconCore">
+                        <div class="beacon-outer-glow"></div>
+                        <div class="beacon-atmosphere"></div>
+                        <div class="beacon-surface"></div>
+                    </div>
+                    <div class="slot0-label" id="slot0Label">
+                        <div class="slot0-label-main">SLOT 0</div>
+                        <div class="slot0-label-sub">Origin Point</div>
+                    </div>
+                </div>
+
+                <!-- Debris particles -->
+                <div class="debris-particle debris-1" id="debris1"></div>
+                <div class="debris-particle debris-2" id="debris2"></div>
+                <div class="debris-particle debris-3" id="debris3"></div>
+                <div class="debris-particle debris-4" id="debris4"></div>
+                <div class="debris-particle debris-5" id="debris5"></div>
+                <div class="debris-particle debris-6" id="debris6"></div>
+                <div class="debris-particle debris-7" id="debris7"></div>
+                <div class="debris-particle debris-8" id="debris8"></div>
+
+                <!-- RIGHT SIDE: Default storage -->
+                <div class="h-connection" id="hConnection"></div>
+
+                <div class="h-arrow" id="hArrow">
+                    <div class="arrow-line-h"></div>
+                    <div class="arrow-text">RIGHT →</div>
+                </div>
+
+                <div class="zone-label-right" id="zoneLabelRight">DEFAULT STORAGE</div>
+
+                <div class="horizontal-slots">
+                    <div class="storage-slot" id="hslot1">
+                        <div class="slot-index">Slot 1</div>
+                        <div class="slot-star"></div>
+                        <div class="slot-type">data2</div>
+                        <div class="slot-bytes">32 bytes</div>
+                    </div>
+                    <div class="storage-slot has-array" id="hslot2">
+                        <div class="slot-index">Slot 2</div>
+                        <div class="slot-star array-marker"></div>
+                        <div class="slot-type">.length</div>
+                        <div class="slot-bytes">32 bytes</div>
+                    </div>
+                    <div class="storage-slot" id="hslot3">
+                        <div class="slot-index">Slot 3</div>
+                        <div class="slot-star empty"></div>
+                        <div class="slot-type">empty</div>
+                        <div class="slot-bytes">32 bytes</div>
+                    </div>
+                </div>
+
+                <div class="array-connector" id="arrayConnector"></div>
+                <div class="array-label" id="arrayLabel">dataArray[]</div>
+
+                <div class="v-arrow" id="vArrow">
+                    <div class="arrow-line-v"></div>
+                    <div class="arrow-text">UP ↑</div>
+                </div>
+
+                <div class="vertical-slots">
+                    <div class="array-slot" id="aslot0">
+                        <div class="array-index">[0]</div>
+                        <div class="array-star"></div>
+                        <div class="array-type">elem</div>
+                    </div>
+                    <div class="array-slot" id="aslot1">
+                        <div class="array-index">[1]</div>
+                        <div class="array-star"></div>
+                        <div class="array-type">elem</div>
+                    </div>
+                    <div class="array-slot" id="aslot2">
+                        <div class="array-index">[2]</div>
+                        <div class="array-star"></div>
+                        <div class="array-type">elem</div>
+                    </div>
+                </div>
+
+                <!-- LEFT SIDE: EIP-7201 namespace -->
+                <!-- Destination beacon marker (appears first to mark the spot) -->
+                <div class="namespace-dest-beacon" id="namespaceDestBeacon"></div>
+
+                <!-- Traveling comet (flies from center to destination) -->
+                <div class="namespace-comet" id="namespaceComet"></div>
+
+                <!-- Impact spring burst (at destination, after comet arrives) -->
+                <div class="namespace-spring" id="namespaceSpring"></div>
+
+                <!-- The actual slot (appears after burst) -->
+                <div class="namespace-single-slot" id="namespaceSingleSlot">
+                    <div class="slot-index">Namespace</div>
+                    <div class="slot-star"></div>
+                    <div class="slot-type">32 bytes</div>
+                    <div class="slot-bytes">EIP-7201</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collision Zone Visualization -->
+        <div class="collision-zone">
+            <div class="collision-line"></div>
+            <div class="boundary-marker boundary-marker-right">
+                <div class="boundary-label boundary-label-right">2^256-1</div>
+            </div>
+            <div class="boundary-marker boundary-marker-left">
+                <div class="boundary-label boundary-label-left">Overflow/Underflow</div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot beacon"></div>
+                <div class="legend-text">Slot 0</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot default"></div>
+                <div class="legend-text">Default</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot default-array"></div>
+                <div class="legend-text">Default Array</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot namespace"></div>
+                <div class="legend-text">Namespace</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot ns-array"></div>
+                <div class="legend-text">NS Array</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot collision"></div>
+                <div class="legend-text">Collision Risk</div>
+            </div>
+        </div>
+
+        <!-- Footer with Educational Content -->
+        <div class="footer-text">
+            <div class="footer-main">
+                Understanding <span class="footer-highlight">-1</span> in <span class="footer-highlight-green">keccak256(keccak256(id) - 1) & ~0xff</span> shifts storage to <span class="footer-highlight">opposite direction</span> (left/down) avoiding collision with default Solidity (right/up). 
+                <span class="footer-highlight-green">Rehashing</span> creates even more remote locations, like building in less crowded galaxy regions.
+            </div>
+            <div class="footer-sub">
+                EIP-7201: Namespaced Storage Layout • Collision Avoidance through Directional Shift &amp; Rehashing
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate random contract address
+        function generateAddress() {
+            const chars = '0123456789abcdef';
+            let addr = '0x';
+            for (let i = 0; i < 40; i++) addr += chars[Math.floor(Math.random() * 16)];
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
+        }
+
+        // Generate a random position in the LEFT hemisphere of the dome
+        function generateRandomNamespacePosition() {
+            const domeRadius = 160; // safe inner radius (dome is 440px, so 220 outer, keep slots well inside)
+            const angleMin = 100;   // degrees, left hemisphere
+            const angleMax = 260;
+            const angle = (Math.random() * (angleMax - angleMin) + angleMin) * Math.PI / 180;
+            const minDist = domeRadius * 0.35;
+            const maxDist = domeRadius * 0.85;
+            const distance = Math.random() * (maxDist - minDist) + minDist;
+            return {
+                x: distance * Math.cos(angle),   // offset from dome center (px)
+                y: distance * Math.sin(angle)
+            };
+        }
+
+        // Elements
+        const arrivalTrail       = document.getElementById('arrivalTrail');
+        const impactFlash        = document.getElementById('impactFlash');
+        const beaconCore         = document.getElementById('beaconCore');
+        const slot0Label         = document.getElementById('slot0Label');
+        const contractAddress    = document.getElementById('contractAddress');
+        const hConnection        = document.getElementById('hConnection');
+        const hArrow             = document.getElementById('hArrow');
+        const zoneLabelRight     = document.getElementById('zoneLabelRight');
+        const arrayConnector     = document.getElementById('arrayConnector');
+        const arrayLabel         = document.getElementById('arrayLabel');
+        const vArrow             = document.getElementById('vArrow');
+
+        // Namespace elements
+        const namespaceDestBeacon  = document.getElementById('namespaceDestBeacon');
+        const namespaceComet       = document.getElementById('namespaceComet');
+        const namespaceSpring      = document.getElementById('namespaceSpring');
+        const namespaceSingleSlot  = document.getElementById('namespaceSingleSlot');
+
+        const hSlots = [
+            document.getElementById('hslot1'),
+            document.getElementById('hslot2'),
+            document.getElementById('hslot3')
+        ];
+        const aSlots = [
+            document.getElementById('aslot0'),
+            document.getElementById('aslot1'),
+            document.getElementById('aslot2')
+        ];
+        const debris = Array.from({length: 8}, (_, i) => document.getElementById(`debris${i+1}`));
+
+        function resetAnimation(el, cls) {
+            el.classList.remove(cls);
+            void el.offsetWidth; // reflow
+            el.classList.add(cls);
+        }
+
+        // ─── Namespace travel sequence ───────────────────────────────────────────
+        // Step 1: destination beacon pulses at the chosen spot      (t = 0ms)
+        // Step 2: comet travels from center → destination           (t = 700ms)
+        // Step 3: spring burst at destination                       (t = 700ms + travel)
+        // Step 4: slot pops into existence                          (t = step 3 + 200ms)
+
+        function runNamespaceSequence(pos) {
+            // pos is {x, y} relative to storage-grid centre (which sits at dome centre)
+
+            // ── 1. Position all destination elements now (slot is hidden) ──
+            const destStyle = `translate(-50%, -50%)`;
+            namespaceDestBeacon.style.left = `calc(50% + ${pos.x}px)`;
+            namespaceDestBeacon.style.top  = `calc(50% + ${pos.y}px)`;
+            namespaceSpring.style.left     = `calc(50% + ${pos.x}px)`;
+            namespaceSpring.style.top      = `calc(50% + ${pos.y}px)`;
+            namespaceSingleSlot.style.left = `calc(50% + ${pos.x}px)`;
+            namespaceSingleSlot.style.top  = `calc(50% + ${pos.y}px)`;
+
+            // Reset slot to hidden / clean state
+            namespaceSingleSlot.classList.remove('animate');
+            namespaceSingleSlot.style.opacity = '0';
+            namespaceDestBeacon.classList.remove('animate');
+            namespaceSpring.classList.remove('animate');
+            namespaceComet.style.opacity = '0';
+            namespaceComet.style.transition = 'none';
+
+            // ── 2. Pulse the destination beacon (marks the spot) ──
+            setTimeout(() => {
+                resetAnimation(namespaceDestBeacon, 'animate');
+            }, 0);
+
+            // ── 3. Launch the comet from center toward destination ──
+            const TRAVEL_DURATION = 800; // ms
+            setTimeout(() => {
+                // Snap comet to center first
+                namespaceComet.style.transition = 'none';
+                namespaceComet.style.left = '50%';
+                namespaceComet.style.top  = '50%';
+                namespaceComet.style.opacity = '1';
+                void namespaceComet.offsetWidth; // reflow
+
+                // Travel to destination
+                namespaceComet.style.transition = `left ${TRAVEL_DURATION}ms cubic-bezier(0.4,0,0.2,1),
+                                                    top  ${TRAVEL_DURATION}ms cubic-bezier(0.4,0,0.2,1),
+                                                    opacity 200ms ease ${TRAVEL_DURATION - 200}ms`;
+                namespaceComet.style.left = `calc(50% + ${pos.x}px)`;
+                namespaceComet.style.top  = `calc(50% + ${pos.y}px)`;
+                // Fade comet out at the end
+                namespaceComet.style.opacity = '0';
+            }, 400);
+
+            // ── 4. Spring burst at destination (comet arrives) ──
+            setTimeout(() => {
+                resetAnimation(namespaceSpring, 'animate');
+            }, 400 + TRAVEL_DURATION - 100);
+
+            // ── 5. Slot appears ──
+            setTimeout(() => {
+                resetAnimation(namespaceSingleSlot, 'animate');
+            }, 400 + TRAVEL_DURATION + 200);
+        }
+
+        // ─── Main sequence ────────────────────────────────────────────────────────
+        function runArrivalSequence() {
+            contractAddress.textContent = generateAddress();
+
+            // Pre-determine the namespace destination for this cycle
+            const nsPos = generateRandomNamespacePosition();
+
+            // Step 1: trail (0–1.8s)
+            resetAnimation(arrivalTrail, 'animate');
+
+            // Step 2: impact at 1.8s
+            setTimeout(() => {
+                resetAnimation(impactFlash, 'animate');
+                resetAnimation(beaconCore, 'animate');
+                debris.forEach(d => resetAnimation(d, 'animate'));
+                setTimeout(() => resetAnimation(slot0Label, 'animate'), 500);
+            }, 1800);
+
+            // Step 3: right side default storage (2.5s)
+            setTimeout(() => {
+                resetAnimation(hConnection, 'animate');
+                setTimeout(() => {
+                    resetAnimation(hArrow, 'animate');
+                    resetAnimation(zoneLabelRight, 'animate');
+                    hSlots.forEach(s => resetAnimation(s, 'animate'));
+                }, 600);
+                setTimeout(() => {
+                    resetAnimation(arrayConnector, 'animate');
+                    setTimeout(() => {
+                        resetAnimation(arrayLabel, 'animate');
+                        resetAnimation(vArrow, 'animate');
+                        aSlots.forEach(s => resetAnimation(s, 'animate'));
+                    }, 500);
+                }, 1200);
+            }, 2500);
+
+            // Step 4: namespace (4s) — destination was already decided, now animate
+            setTimeout(() => {
+                runNamespaceSequence(nsPos);
+            }, 4000);
+
+            // Beacon pulse at end
+            setTimeout(() => {
+                resetAnimation(beaconCore, 'pulse');
+            }, 6500);
+        }
+
+        // Start
+        runArrivalSequence();
+        setTimeout(() => {
+            setInterval(runArrivalSequence, 12000);
+        }, 8000);
+    </script>
+</body>
+</html>

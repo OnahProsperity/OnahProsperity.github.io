@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.4a754834.css",
-    "main.js": "/static/js/main.df1c7393.js",
+    "main.css": "/static/css/main.f90711b2.css",
+    "main.js": "/static/js/main.a2f27cb2.js",
     "static/media/intro.png": "/static/media/intro.dd1697cfbc2b1f9e9187.png",
     "static/media/bida2.png": "/static/media/bida2.83729d43134ed2988486.png",
     "static/media/voldka.jpg": "/static/media/voldka.7220d16310e181a9ed0b.jpg",
@@ -13,11 +13,11 @@
     "static/media/rigel-protocol.jpg": "/static/media/rigel-protocol.af91061c9f2bab57144f.jpg",
     "static/media/dexira.jpg": "/static/media/dexira.37f1e896c65a59392b36.jpg",
     "index.html": "/index.html",
-    "main.4a754834.css.map": "/static/css/main.4a754834.css.map",
-    "main.df1c7393.js.map": "/static/js/main.df1c7393.js.map"
+    "main.f90711b2.css.map": "/static/css/main.f90711b2.css.map",
+    "main.a2f27cb2.js.map": "/static/js/main.a2f27cb2.js.map"
   },
   "entrypoints": [
-    "static/css/main.4a754834.css",
-    "static/js/main.df1c7393.js"
+    "static/css/main.f90711b2.css",
+    "static/js/main.a2f27cb2.js"
   ]
 }

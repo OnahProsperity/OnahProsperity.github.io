@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVM Galaxy: Sequential vs Namespace Storage</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ns1:      #22d3ee;
+            --ns1-glow: rgba(34,211,238,0.55);
+            --ns2:      #f472b6;
+            --ns2-glow: rgba(244,114,182,0.55);
+            --seq:      #4ade80;
+            --seq-glow: rgba(74,222,128,0.45);
+            --slot0:    #a78bfa;
+            --slot0-g:  rgba(167,139,250,0.6);
+            --ring:     rgba(139,92,246,0.5);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'DM Mono', monospace;
+            background: #000;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 1320px;
+            height: 880px;
+            background: radial-gradient(ellipse at 50% 44%, #07010e 0%, #000 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            box-shadow: 0 0 90px rgba(139,92,246,0.07), inset 0 0 130px rgba(0,0,0,0.55);
+        }
+
+        /* ─── Stars ─────────────────────────────────────────── */
+        .stars { position:absolute; inset:0; pointer-events:none; }
+        .stars::before, .stars::after { content:''; position:absolute; inset:0; }
+        .stars::before {
+            background-image:
+                radial-gradient(1px 1px at  4% 12%, rgba(255,255,255,.45),transparent),
+                radial-gradient(1px 1px at 11% 58%, rgba(255,255,255,.3), transparent),
+                radial-gradient(1.5px 1.5px at 19% 81%, rgba(255,255,255,.4),transparent),
+                radial-gradient(1px 1px at 27% 29%, rgba(255,255,255,.25),transparent),
+                radial-gradient(1px 1px at 35% 69%, rgba(255,255,255,.35),transparent),
+                radial-gradient(1.5px 1.5px at 43%  8%, rgba(255,255,255,.5),transparent),
+                radial-gradient(1px 1px at 51% 91%, rgba(255,255,255,.3),transparent),
+                radial-gradient(1px 1px at 59% 43%, rgba(255,255,255,.4),transparent),
+                radial-gradient(1.5px 1.5px at 67% 23%, rgba(255,255,255,.45),transparent),
+                radial-gradient(1px 1px at 75% 76%, rgba(255,255,255,.3),transparent),
+                radial-gradient(1px 1px at 82% 51%, rgba(255,255,255,.35),transparent),
+                radial-gradient(1.5px 1.5px at 90% 17%, rgba(255,255,255,.5),transparent),
+                radial-gradient(1px 1px at 96% 84%, rgba(255,255,255,.3),transparent),
+                radial-gradient(1px 1px at  2% 39%, rgba(255,255,255,.4),transparent),
+                radial-gradient(1px 1px at 47% 63%, rgba(255,255,255,.25),transparent);
+            animation: starDrift 95s linear infinite;
+        }
+        .stars::after {
+            background-image:
+                radial-gradient(2px 2px at  9% 27%, rgba(255,255,255,.3),transparent),
+                radial-gradient(1.5px 1.5px at 24% 71%, rgba(255,255,255,.25),transparent),
+                radial-gradient(2px 2px at 39% 44%, rgba(255,255,255,.35),transparent),
+                radial-gradient(1.5px 1.5px at 59% 14%, rgba(255,255,255,.3),transparent),
+                radial-gradient(2px 2px at 79% 61%, rgba(255,255,255,.25),transparent),
+                radial-gradient(1.5px 1.5px at 87% 87%, rgba(255,255,255,.35),transparent);
+            animation: starDrift 58s linear infinite reverse;
+        }
+        @keyframes starDrift { from{transform:translateY(0)} to{transform:translateY(-20px)} }
+
+        /* ─── Header ─────────────────────────────────────────── */
+        .hdr {
+            position:absolute; top:20px; left:28px; z-index:100;
+            opacity:0; animation:fadeIn .8s ease-out .3s forwards;
+        }
+        .hdr-title {
+            font-family:'Syne',sans-serif;
+            font-size:clamp(15px,2vw,24px);
+            font-weight:800; color:#fff;
+            text-shadow:0 0 40px var(--slot0-g);
+            letter-spacing:-.3px;
+        }
+        .hdr-sub {
+            font-size:clamp(8px,.85vw,10px);
+            color:rgba(167,139,250,.55);
+            margin-top:5px; letter-spacing:.4px;
+        }
+
+        /* ─── Contract badge ─────────────────────────────────── */
+        .badge {
+            position:absolute; top:20px; right:28px;
+            text-align:right; z-index:100;
+            opacity:0; animation:fadeIn .8s ease-out .9s forwards;
+        }
+        .badge-lbl { font-size:7px; color:rgba(255,255,255,.28); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+        .badge-addr {
+            font-size:10px; color:rgba(167,139,250,.8);
+            background:rgba(139,92,246,.1);
+            border:1px solid rgba(139,92,246,.25);
+            padding:5px 10px; border-radius:6px;
+        }
+
+        /* ─── Namespace pills (top-centre) ───────────────────── */
+        .pills {
+            position:absolute; top:62px; left:50%; transform:translateX(-50%);
+            display:flex; gap:8px; z-index:100;
+            opacity:0; animation:fadeIn .8s ease-out .6s forwards;
+        }
+        .pill {
+            display:flex; align-items:center; gap:6px;
+            padding:5px 11px; border-radius:20px; border:1px solid;
+            font-size:clamp(7px,.75vw,10px); letter-spacing:.2px;
+        }
+        .pill.ns1 { border-color:rgba(34,211,238,.4); background:rgba(34,211,238,.07); color:var(--ns1); }
+        .pill.ns2 { border-color:rgba(244,114,182,.4); background:rgba(244,114,182,.07); color:var(--ns2); }
+        .pill.seq { border-color:rgba(74,222,128,.4);  background:rgba(74,222,128,.07);  color:var(--seq); }
+        .pill-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .pill.ns1 .pill-dot { background:var(--ns1); box-shadow:0 0 6px var(--ns1-glow); }
+        .pill.ns2 .pill-dot { background:var(--ns2); box-shadow:0 0 6px var(--ns2-glow); }
+        .pill.seq .pill-dot { background:var(--seq); box-shadow:0 0 6px var(--seq-glow); }
+
+        /* ─── Dome ───────────────────────────────────────────── */
+        .dome-wrap {
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-48%);
+            width:470px; height:470px;
+            pointer-events:none;
+        }
+        .dome-ring {
+            position:absolute; inset:0; border-radius:50%;
+            border:2.5px solid transparent;
+            background:
+                linear-gradient(#000,#000) padding-box,
+                conic-gradient(
+                    var(--ring) 0deg,
+                    rgba(34,211,238,.35) 80deg,
+                    rgba(74,222,128,.35) 160deg,
+                    rgba(244,114,182,.35) 220deg,
+                    var(--ring) 300deg,
+                    rgba(34,211,238,.35) 360deg
+                ) border-box;
+            box-shadow:0 0 28px rgba(139,92,246,.18), inset 0 0 28px rgba(139,92,246,.04);
+            opacity:0;
+            animation:spin 20s linear infinite, domeIn 1.8s ease-out .7s forwards;
+        }
+        @keyframes spin   { from{transform:rotate(0)}   to{transform:rotate(360deg)} }
+        @keyframes domeIn { 0%{opacity:0;transform:scale(.35)} 60%{opacity:1;transform:scale(1.04)} 100%{opacity:1;transform:scale(1)} }
+
+        .dome-hex {
+            position:absolute; inset:0; border-radius:50%; overflow:hidden;
+            opacity:0; animation:fadeIn 1.3s ease-out 1.5s forwards;
+        }
+        .dome-hex::before {
+            content:''; position:absolute; inset:-60%;
+            background-image:
+                linear-gradient(30deg,  rgba(139,92,246,.05) 12%, transparent 12.5%, transparent 87%, rgba(139,92,246,.05) 87.5%),
+                linear-gradient(150deg, rgba(139,92,246,.05) 12%, transparent 12.5%, transparent 87%, rgba(139,92,246,.05) 87.5%),
+                linear-gradient(60deg,  rgba(74,222,128,.025) 25%, transparent 25.5%, transparent 75%, rgba(74,222,128,.025) 75%);
+            background-size:33px 57px;
+            background-position:0 0,0 0,16px 28px;
+            animation:hexPulse 5s ease-in-out infinite;
+        }
+        @keyframes hexPulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
+
+        .dome-glow {
+            position:absolute; inset:5%; border-radius:50%;
+            background:radial-gradient(circle, rgba(139,92,246,.035) 0%, transparent 70%);
+        }
+
+        .dp { position:absolute; inset:0; border-radius:50%; border:1.5px solid rgba(139,92,246,.16); opacity:0; }
+        .dp1{animation:dpFade 3.8s ease-out infinite}
+        .dp2{animation:dpFade 3.8s ease-out 1.2s infinite}
+        .dp3{animation:dpFade 3.8s ease-out 2.4s infinite}
+        @keyframes dpFade {
+            0%  {transform:scale(1);   opacity:.3; border-color:rgba(139,92,246,.28)}
+            100%{transform:scale(1.32);opacity:0;  border-color:rgba(139,92,246,0)}
+        }
+
+        /* ─── Vertical axis divider through dome centre ──────── */
+        .axis-line {
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            width:1px; height:390px;
+            background:linear-gradient(180deg,
+                transparent 0%,
+                rgba(255,255,255,.05) 18%,
+                rgba(255,255,255,.09) 50%,
+                rgba(255,255,255,.05) 82%,
+                transparent 100%);
+            opacity:0; animation:fadeIn .8s ease-out 3.5s forwards;
+            pointer-events:none; z-index:30;
+        }
+
+        /* axis zone labels */
+        .zone-lbl {
+            position:absolute; font-size:7px; letter-spacing:1.5px;
+            text-transform:uppercase; opacity:0;
+            animation:fadeIn .8s ease-out 3.7s forwards;
+            z-index:32; white-space:nowrap; pointer-events:none;
+        }
+        /* sits just above the dome, on each side */
+        .zone-lbl.zr {
+            color:rgba(74,222,128,.45);
+            /* right of center at dome top */
+            top:calc(52% - 248px); left:calc(50% + 14px);
+        }
+        .zone-lbl.zl {
+            color:rgba(139,92,246,.45);
+            top:calc(52% - 248px); right:calc(50% + 14px);
+            text-align:right;
+        }
+
+        /* ─── Direction arrows ───────────────────────────────── */
+        .dir-arrow {
+            position:absolute;
+            display:flex; align-items:center; gap:5px;
+            opacity:0; z-index:50; pointer-events:none;
+            /* vertically above the slot row, slightly left of centre on each side */
+        }
+        /* right arrow: points right */
+        .dir-arrow.ra {
+            /* anchor just right of slot0 label */
+            top:calc(52% - 38px);
+            left:calc(50% + 46px);
+        }
+        /* left arrow: points left */
+        .dir-arrow.la {
+            top:calc(52% - 38px);
+            right:calc(50% + 46px);
+            flex-direction:row-reverse;
+        }
+        .a-line { width:42px; height:1.5px; position:relative; }
+        .a-line.r { background:linear-gradient(90deg,rgba(74,222,128,.6),rgba(74,222,128,.15)); }
+        .a-line.r::after {
+            content:''; position:absolute; right:-1px; top:-3px;
+            border:4px solid transparent; border-left:5px solid rgba(74,222,128,.6);
+        }
+        .a-line.l { background:linear-gradient(270deg,rgba(139,92,246,.6),rgba(139,92,246,.15)); }
+        .a-line.l::after {
+            content:''; position:absolute; left:-1px; top:-3px;
+            border:4px solid transparent; border-right:5px solid rgba(139,92,246,.6);
+        }
+        .a-txt { font-size:7px; white-space:nowrap; }
+        .a-txt.g { color:rgba(74,222,128,.6); }
+        .a-txt.v { color:rgba(139,92,246,.6); }
+
+        /* ─── Storage grid ───────────────────────────────────── */
+        .grid {
+            position:absolute; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            z-index:50;
+        }
+
+        /* ─── Slot 0 ─────────────────────────────────────────── */
+        .s0w { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:54px; height:54px; }
+        .s0c { position:absolute; inset:0; opacity:0; }
+        .s0c.show { animation:s0In 1s ease-out forwards; }
+        @keyframes s0In { 0%{opacity:0;transform:scale(0)} 55%{opacity:1;transform:scale(1.28)} 100%{opacity:1;transform:scale(1)} }
+        .s0g {
+            position:absolute; inset:-55%; border-radius:50%;
+            background:radial-gradient(circle, var(--slot0-g) 0%, transparent 65%);
+            animation:glow0 3.2s ease-in-out infinite;
+        }
+        @keyframes glow0{0%,100%{transform:scale(1);opacity:.55} 50%{transform:scale(1.2);opacity:.9}}
+        .s0s {
+            position:absolute; inset:0; border-radius:50%;
+            background:radial-gradient(circle at 32% 28%, #fff 0%, #c4b5fd 22%, #7c3aed 60%, #4c1d95 100%);
+            box-shadow:0 0 22px var(--slot0-g), 0 0 48px rgba(139,92,246,.5), 0 0 80px rgba(139,92,246,.22);
+        }
+        .s0l { position:absolute; top:calc(50%+34px); left:50%; transform:translateX(-50%); text-align:center; white-space:nowrap; opacity:0; }
+        .s0l.show { animation:fadeIn .5s ease-out forwards; }
+        .s0lm { font-size:8px; font-weight:500; color:rgba(255,255,255,.9); text-shadow:0 0 10px var(--slot0-g); }
+        .s0ls { font-size:6px; color:rgba(167,139,250,.5); margin-top:2px; }
+
+        /* ─── Debris ─────────────────────────────────────────── */
+        .dbr { position:absolute; top:50%; left:50%; width:3px; height:3px; border-radius:50%; background:rgba(167,139,250,.9); box-shadow:0 0 5px rgba(167,139,250,.5); opacity:0; pointer-events:none; }
+        .dbr.pop { animation:dbrFly 1.4s ease-out forwards; }
+        .d1{--dx:-66px;--dy:-46px}.d2{--dx:60px;--dy:-36px}.d3{--dx:-36px;--dy:60px}.d4{--dx:50px;--dy:70px}
+        .d5{--dx:-76px;--dy:10px}.d6{--dx:70px;--dy:-18px}.d7{--dx:20px;--dy:-76px}.d8{--dx:-26px;--dy:76px}
+        .d1.pop{animation-delay:0ms}.d2.pop{animation-delay:40ms}.d3.pop{animation-delay:80ms}.d4.pop{animation-delay:120ms}
+        .d5.pop{animation-delay:20ms}.d6.pop{animation-delay:60ms}.d7.pop{animation-delay:100ms}.d8.pop{animation-delay:140ms}
+        @keyframes dbrFly { 0%{opacity:1;transform:translate(-50%,-50%) scale(2)} 100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0)} }
+
+        /* ─── Impact flash ───────────────────────────────────── */
+        .imp {
+            position:absolute; top:50%; left:50%; width:230px; height:230px;
+            transform:translate(-50%,-50%); border-radius:50%;
+            background:radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(139,92,246,.5) 28%, transparent 65%);
+            opacity:0; pointer-events:none; z-index:65;
+        }
+        .imp.pop { animation:impIn .85s ease-out forwards; }
+        @keyframes impIn { 0%{opacity:0;transform:translate(-50%,-50%) scale(0)} 22%{opacity:1;transform:translate(-50%,-50%) scale(.7)} 100%{opacity:0;transform:translate(-50%,-50%) scale(2.3)} }
+
+        /* ─── Arrival trail ──────────────────────────────────── */
+        .trail {
+            position:absolute; top:0; left:50%; transform:translateX(-50%);
+            width:3px; height:36%;
+            background:linear-gradient(180deg,transparent 0%,rgba(139,92,246,.08) 18%,rgba(139,92,246,.55) 80%,rgba(255,255,255,.95) 100%);
+            opacity:0; z-index:70; filter:blur(.4px);
+        }
+        .trail.fall { animation:trailDrop 1.7s ease-in forwards; }
+        @keyframes trailDrop { 0%{opacity:0;transform:translateX(-50%) translateY(-100%)} 18%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(18%)} }
+
+        /* ─── RIGHT: sequential slots ────────────────────────── */
+        .hconn {
+            position:absolute; top:50%; left:calc(50% + 22px);
+            height:2px; width:0;
+            background:linear-gradient(90deg,rgba(74,222,128,.7),rgba(74,222,128,.25));
+            transform:translateY(-50%); opacity:0;
+        }
+        .hconn.grow { animation:hcGrow .6s ease-out forwards; }
+        @keyframes hcGrow { 0%{width:0;opacity:0} 100%{width:24px;opacity:1} }
+
+        .seq-row {
+            position:absolute; top:50%; left:calc(50% + 46px);
+            transform:translateY(-50%);
+            display:flex; gap:7px; z-index:45;
+        }
+        .ss {
+            width:42px; height:42px; border-radius:8px;
+            background:rgba(5,12,8,.96);
+            border:1.5px solid rgba(74,222,128,.35);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            position:relative; opacity:0; transform:translateX(-10px) scale(.82);
+            cursor:pointer;
+            transition:border-color .3s,background .3s,box-shadow .3s;
+        }
+        .ss:hover { border-color:rgba(74,222,128,.9); background:rgba(74,222,128,.1); transform:scale(1.14); box-shadow:0 0 22px var(--seq-glow); z-index:100; }
+        .ss.pop { animation:ssIn .5s ease-out forwards; }
+        .ss:nth-child(1).pop{animation-delay:0ms}.ss:nth-child(2).pop{animation-delay:75ms}.ss:nth-child(3).pop{animation-delay:150ms}
+        @keyframes ssIn { 0%{opacity:0;transform:translateX(-10px) scale(.82)} 100%{opacity:1;transform:translateX(0) scale(1)} }
+        .ss .si { position:absolute; top:-13px; left:50%; transform:translateX(-50%); font-size:6px; color:rgba(74,222,128,.6); white-space:nowrap; }
+        .ss .st { width:11px; height:11px; border-radius:50%; background:radial-gradient(circle at 30% 28%,#fff,var(--seq)); box-shadow:0 0 7px var(--seq-glow),0 0 14px rgba(74,222,128,.3); animation:twkl 2.1s ease-in-out infinite; }
+        .ss .sy { font-size:5px; color:rgba(255,255,255,.45); margin-top:3px; }
+        .ss .sb { position:absolute; bottom:-11px; left:50%; transform:translateX(-50%); font-size:5px; color:rgba(74,222,128,.4); white-space:nowrap; }
+
+        /* array connector + elements going UP from slot 2 centre */
+        /* slot2 centre x relative to grid = 50% + 46 + 42 + 7 + 21 = 50%+116px */
+        .aconn {
+            position:absolute; left:calc(50% + 116px); bottom:calc(50% + 21px);
+            width:1.5px; height:0; background:rgba(74,222,128,.45); opacity:0; z-index:40;
+        }
+        .aconn.grow { animation:acGrow .5s ease-out forwards; }
+        @keyframes acGrow { 0%{height:0;opacity:0} 100%{height:22px;opacity:1} }
+
+        .arr-row {
+            position:absolute;
+            left:calc(50% + 97px);   /* 116 - 19 (half of 38) */
+            bottom:calc(50% + 43px); /* 21+22=43px above centre */
+            display:flex; flex-direction:column-reverse; gap:5px; z-index:45;
+        }
+        .as {
+            width:38px; height:28px; border-radius:6px;
+            background:rgba(5,12,8,.96);
+            border:1.5px solid rgba(74,222,128,.3);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            position:relative; opacity:0; transform:translateY(8px) scale(.82);
+            cursor:pointer;
+            transition:border-color .3s,background .3s,box-shadow .3s;
+        }
+        .as:hover { border-color:rgba(74,222,128,.9); background:rgba(74,222,128,.1); transform:scale(1.14); box-shadow:0 0 16px var(--seq-glow); z-index:100; }
+        .as.pop { animation:asIn .5s ease-out forwards; }
+        .as:nth-child(1).pop{animation-delay:0ms}.as:nth-child(2).pop{animation-delay:70ms}.as:nth-child(3).pop{animation-delay:140ms}
+        @keyframes asIn { 0%{opacity:0;transform:translateY(8px) scale(.82)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+        .as .ai { position:absolute; left:-15px; top:50%; transform:translateY(-50%); font-size:5px; color:rgba(74,222,128,.45); }
+        .as .at { width:8px; height:8px; border-radius:50%; background:radial-gradient(circle at 30% 28%,#fff,var(--seq)); box-shadow:0 0 5px var(--seq-glow); animation:twkl 2.4s ease-in-out infinite; }
+        .as .ay { font-size:4px; color:rgba(255,255,255,.35); margin-top:2px; }
+
+        /* keccak label above array col */
+        .arr-lbl {
+            position:absolute;
+            left:calc(50% + 116px); transform:translateX(-50%);
+            font-size:5.5px; color:rgba(74,222,128,.38); white-space:nowrap; opacity:0;
+        }
+
+        @keyframes twkl { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.72;transform:scale(.88)} }
+
+        /* ─── LEFT: namespace slots ──────────────────────────── */
+        .ns-comet {
+            position:absolute; top:50%; left:50%;
+            width:7px; height:7px; border-radius:50%;
+            opacity:0; z-index:62; pointer-events:none;
+            transform:translate(-50%,-50%);
+        }
+        .ns-comet.c1 { background:radial-gradient(circle,#fff,var(--ns1)); box-shadow:0 0 14px var(--ns1-glow),0 0 28px rgba(34,211,238,.3); }
+        .ns-comet.c2 { background:radial-gradient(circle,#fff,var(--ns2)); box-shadow:0 0 14px var(--ns2-glow),0 0 28px rgba(244,114,182,.3); }
+
+        .dest-bcn {
+            position:absolute; width:22px; height:22px; border-radius:50%; border:2px solid;
+            opacity:0; z-index:55; pointer-events:none; transform:translate(-50%,-50%);
+        }
+        .dest-bcn.b1{border-color:var(--ns1)}.dest-bcn.b2{border-color:var(--ns2)}
+        .dest-bcn.ping { animation:bcnPing .65s ease-out forwards; }
+        @keyframes bcnPing { 0%{opacity:0;transform:translate(-50%,-50%) scale(0)} 40%{opacity:1;transform:translate(-50%,-50%) scale(1.55)} 70%{opacity:.8;transform:translate(-50%,-50%) scale(1)} 100%{opacity:.4;transform:translate(-50%,-50%) scale(1.15)} }
+
+        .ns-spring {
+            position:absolute; width:32px; height:32px; border-radius:50%; opacity:0; z-index:56; pointer-events:none; transform:translate(-50%,-50%);
+        }
+        .ns-spring.s1{background:radial-gradient(circle,var(--ns1),transparent);box-shadow:0 0 40px var(--ns1-glow)}
+        .ns-spring.s2{background:radial-gradient(circle,var(--ns2),transparent);box-shadow:0 0 40px var(--ns2-glow)}
+        .ns-spring.burst { animation:sprBurst .95s ease-out forwards; }
+        @keyframes sprBurst { 0%{opacity:0;transform:translate(-50%,-50%) scale(0)} 35%{opacity:1;transform:translate(-50%,-50%) scale(1.9)} 100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)} }
+
+        .ns-slot {
+            position:absolute; width:50px; height:50px; border-radius:10px;
+            background:rgba(4,8,18,.96); border:2px solid;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            opacity:0; transform:translate(-50%,-50%) scale(.85);
+            cursor:pointer; z-index:45;
+            transition:box-shadow .3s,background .3s;
+        }
+        .ns-slot.n1{border-color:rgba(34,211,238,.5)}.ns-slot.n2{border-color:rgba(244,114,182,.5)}
+        .ns-slot.n1:hover{background:rgba(34,211,238,.1);box-shadow:0 0 28px var(--ns1-glow);transform:translate(-50%,-50%) scale(1.18);z-index:100}
+        .ns-slot.n2:hover{background:rgba(244,114,182,.1);box-shadow:0 0 28px var(--ns2-glow);transform:translate(-50%,-50%) scale(1.18);z-index:100}
+        .ns-slot.appear { animation:nsIn .75s ease-out forwards; }
+        @keyframes nsIn { 0%{opacity:0;transform:translate(-50%,-50%) scale(0)} 55%{opacity:1;transform:translate(-50%,-50%) scale(1.2)} 100%{opacity:1;transform:translate(-50%,-50%) scale(1)} }
+        .ns-slot .nl { position:absolute; top:-15px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:6px; letter-spacing:.3px; }
+        .ns-slot.n1 .nl{color:rgba(34,211,238,.7)}.ns-slot.n2 .nl{color:rgba(244,114,182,.7)}
+        .ns-slot .nst { width:13px; height:13px; border-radius:50%; animation:twkl 2.2s ease-in-out infinite; }
+        .ns-slot.n1 .nst{background:radial-gradient(circle at 30% 28%,#fff,var(--ns1));box-shadow:0 0 8px var(--ns1-glow),0 0 18px rgba(34,211,238,.3)}
+        .ns-slot.n2 .nst{background:radial-gradient(circle at 30% 28%,#fff,var(--ns2));box-shadow:0 0 8px var(--ns2-glow),0 0 18px rgba(244,114,182,.3)}
+        .ns-slot .nty { font-size:5px; color:rgba(255,255,255,.42); margin-top:3px; }
+        .ns-slot .nby { position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); font-size:5px; white-space:nowrap; }
+        .ns-slot.n1 .nby{color:rgba(34,211,238,.45)}.ns-slot.n2 .nby{color:rgba(244,114,182,.45)}
+
+        /* ─── Subtle shift label on axis ─────────────────────── */
+        .shift-lbl {
+            position:absolute; top:calc(52% + 52px); left:50%; transform:translateX(-50%);
+            font-size:6.5px; color:rgba(255,255,255,.2); white-space:nowrap;
+            letter-spacing:.4px; z-index:32; opacity:0; pointer-events:none;
+        }
+        .shift-lbl.show { animation:fadeIn 1s ease-out forwards; }
+
+        /* ─── Footer ─────────────────────────────────────────── */
+        .footer {
+            position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+            width:90%; max-width:880px; text-align:center; z-index:100;
+            opacity:0; animation:fadeIn .8s ease-out 10s forwards;
+        }
+        .fm {
+            font-size:clamp(7px,.88vw,10px);
+            color:rgba(255,255,255,.55);
+            line-height:1.65; white-space:normal; word-break:break-word;
+        }
+        .hg  { color:rgba(74,222,128,.9);  font-weight:500; }
+        .hc  { color:rgba(34,211,238,.9);  font-weight:500; }
+        .hp  { color:rgba(244,114,182,.9); font-weight:500; }
+        .hv  { color:rgba(167,139,250,.9); font-weight:500; }
+        .fs {
+            font-size:clamp(6px,.72vw,8px);
+            color:rgba(255,255,255,.22);
+            margin-top:4px; white-space:normal; word-break:break-word;
+        }
+
+        /* ─── Legend ─────────────────────────────────────────── */
+        .legend {
+            position:absolute; bottom:72px; left:50%; transform:translateX(-50%);
+            display:flex; gap:18px;
+            opacity:0; animation:fadeIn .8s ease-out 10s forwards; z-index:100;
+        }
+        .leg{display:flex;align-items:center;gap:5px}
+        .ld{width:7px;height:7px;border-radius:50%}
+        .ld.s0{background:radial-gradient(circle,#fff,var(--slot0));box-shadow:0 0 5px var(--slot0-g)}
+        .ld.sq{background:radial-gradient(circle,#fff,var(--seq));box-shadow:0 0 5px var(--seq-glow)}
+        .ld.n1{background:radial-gradient(circle,#fff,var(--ns1));box-shadow:0 0 5px var(--ns1-glow)}
+        .ld.n2{background:radial-gradient(circle,#fff,var(--ns2));box-shadow:0 0 5px var(--ns2-glow)}
+        .lt{font-size:clamp(6px,.68vw,7px);color:rgba(255,255,255,.38)}
+
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+        /* ─── Responsive ─────────────────────────────────────── */
+        @media(max-width:1060px){
+            .dome-wrap{width:400px;height:400px}
+            .grid{transform:translate(-50%,-50%) scale(.88)}
+            .zone-lbl,.shift-lbl{display:none}
+        }
+        @media(max-width:780px){
+            .wrap{height:610px}
+            .dome-wrap{width:320px;height:320px}
+            .grid{transform:translate(-50%,-50%) scale(.71)}
+            .dir-arrow,.axis-line,.zone-lbl,.arr-lbl,.shift-lbl{display:none}
+            .legend{bottom:62px;gap:10px}
+        }
+        @media(max-width:500px){
+            .wrap{height:530px}
+            .dome-wrap{width:265px;height:265px}
+            .grid{transform:translate(-50%,-50%) scale(.58)}
+            .legend{display:none}
+            .hdr-title{font-size:14px}
+            .hdr-sub{font-size:9px}
+            .pills{display:none}
+            .badge{display:none}
+        }
+        @media(max-width:400px){
+            .wrap{height:450px}
+            .dome-wrap{width:220px;height:220px}
+            .grid{transform:translate(-50%,-50%) scale(.48)}
+            .hdr-title{font-size:12px}
+            .hdr-sub{display:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="stars"></div>
+
+    <!-- Header -->
+    <div class="hdr">
+        <div class="hdr-title">EVM Galaxy: Sequential vs Namespace Storage</div>
+        <div class="hdr-sub">Solidity grows right · EIP-7201 lands left · They never meet</div>
+    </div>
+
+    <!-- Pills -->
+    <div class="pills">
+        <div class="pill seq"><div class="pill-dot"></div>Sequential (Solidity)</div>
+        <div class="pill ns1"><div class="pill-dot"></div>myapp.storage</div>
+        <div class="pill ns2"><div class="pill-dot"></div>myapp.admin</div>
+    </div>
+
+    <!-- Contract badge -->
+    <div class="badge">
+        <div class="badge-lbl">Contract</div>
+        <div class="badge-addr" id="cAddr">0x0000...0000</div>
+    </div>
+
+    <!-- Zone labels -->
+    <div class="zone-lbl zr">→ Solidity sequential growth</div>
+    <div class="zone-lbl zl">EIP-7201 namespace zone ←</div>
+
+    <!-- Arrival trail (slot 0) -->
+    <div class="trail" id="trail"></div>
+
+    <!-- Dome -->
+    <div class="dome-wrap">
+        <div class="dome-ring"></div>
+        <div class="dome-hex"></div>
+        <div class="dome-glow"></div>
+        <div class="dp dp1"></div>
+        <div class="dp dp2"></div>
+        <div class="dp dp3"></div>
+    </div>
+
+    <!-- Axis divider -->
+    <div class="axis-line"></div>
+
+    <!-- Direction arrows -->
+    <div class="dir-arrow ra" id="rArr">
+        <div class="a-line r"></div>
+        <div class="a-txt g">sequential →</div>
+    </div>
+    <div class="dir-arrow la" id="lArr">
+        <div class="a-line l"></div>
+        <div class="a-txt v">← namespace</div>
+    </div>
+
+    <!-- Storage grid -->
+    <div class="grid" id="grid">
+
+        <!-- Slot 0 origin -->
+        <div class="s0w">
+            <div class="s0c" id="s0c"><div class="s0g"></div><div class="s0s"></div></div>
+            <div class="s0l" id="s0l"><div class="s0lm">SLOT 0</div><div class="s0ls">Origin</div></div>
+        </div>
+
+        <!-- Debris -->
+        <div class="dbr d1" id="db1"></div><div class="dbr d2" id="db2"></div>
+        <div class="dbr d3" id="db3"></div><div class="dbr d4" id="db4"></div>
+        <div class="dbr d5" id="db5"></div><div class="dbr d6" id="db6"></div>
+        <div class="dbr d7" id="db7"></div><div class="dbr d8" id="db8"></div>
+
+        <!-- Impact flash -->
+        <div class="imp" id="imp"></div>
+
+        <!-- RIGHT: h-connector -->
+        <div class="hconn" id="hconn"></div>
+
+        <!-- RIGHT: sequential row -->
+        <div class="seq-row">
+            <div class="ss" id="ss1"><div class="si">slot 1</div><div class="st"></div><div class="sy">uint256</div><div class="sb">32 bytes</div></div>
+            <div class="ss" id="ss2"><div class="si">slot 2</div><div class="st"></div><div class="sy">.length</div><div class="sb">32 bytes</div></div>
+            <div class="ss" id="ss3"><div class="si">slot 3</div><div class="st"></div><div class="sy">address</div><div class="sb">32 bytes</div></div>
+        </div>
+
+        <!-- RIGHT: array connector + elements going UP -->
+        <div class="aconn" id="aconn"></div>
+        <div class="arr-lbl" id="albl" style="bottom:calc(50% + 43px + 28px*3 + 5px*2 + 8px)">keccak256(slot 2) + n</div>
+        <div class="arr-row">
+            <div class="as" id="as0"><div class="ai">[0]</div><div class="at"></div><div class="ay">elem</div></div>
+            <div class="as" id="as1"><div class="ai">[1]</div><div class="at"></div><div class="ay">elem</div></div>
+            <div class="as" id="as2"><div class="ai">[2]</div><div class="at"></div><div class="ay">elem</div></div>
+        </div>
+
+        <!-- LEFT: NS1 myapp.storage -->
+        <div class="dest-bcn b1" id="bcn1"></div>
+        <div class="ns-comet c1"  id="com1"></div>
+        <div class="ns-spring s1" id="spr1"></div>
+        <div class="ns-slot n1"   id="nsl1">
+            <div class="nl">myapp.storage</div>
+            <div class="nst"></div>
+            <div class="nty">struct</div>
+            <div class="nby">slot α</div>
+        </div>
+
+        <!-- LEFT: NS2 myapp.admin -->
+        <div class="dest-bcn b2" id="bcn2"></div>
+        <div class="ns-comet c2"  id="com2"></div>
+        <div class="ns-spring s2" id="spr2"></div>
+        <div class="ns-slot n2"   id="nsl2">
+            <div class="nl">myapp.admin</div>
+            <div class="nst"></div>
+            <div class="nty">struct</div>
+            <div class="nby">slot β</div>
+        </div>
+
+        <!-- Axis shift label -->
+        <div class="shift-lbl" id="shiftLbl">−1 keeps namespaces out of Solidity's path</div>
+
+    </div><!-- /grid -->
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="fm">
+            <span class="hg">Sequential slots</span> grow rightward from Slot 0 — Solidity's natural pattern.
+            The <span class="hv">−1</span> in <span class="hv">keccak256(keccak256(id) − 1)</span>
+            is a cryptographic pattern-breaker ensuring the outer hash input can never be
+            a valid keccak256 output, scattering <span class="hc">myapp.storage</span> and
+            <span class="hp">myapp.admin</span> into the opposite region —
+            places Solidity's sequential or hashed slots will never reach.
+        </div>
+        <div class="fs">EIP-7201 · Namespaced Storage Layout · Opposite directions = guaranteed isolation</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="leg"><div class="ld s0"></div><div class="lt">Slot 0</div></div>
+        <div class="leg"><div class="ld sq"></div><div class="lt">Sequential (Solidity)</div></div>
+        <div class="leg"><div class="ld n1"></div><div class="lt">myapp.storage</div></div>
+        <div class="leg"><div class="ld n2"></div><div class="lt">myapp.admin</div></div>
+    </div>
+
+</div>
+
+<script>
+    /* ── utils ─────────────────────────────────────────── */
+    function reflow(el){ void el.offsetWidth; }
+    function rand(a,b){ return Math.random()*(b-a)+a; }
+    function rst(el,cls){ el.classList.remove(cls); reflow(el); el.classList.add(cls); }
+    function showAnim(el, delay){
+        el.style.animation = 'none'; el.style.opacity = '0'; reflow(el);
+        el.style.animation = `fadeIn .5s ease-out ${delay||0}ms forwards`;
+    }
+    function addr(){
+        const h='0123456789abcdef'; let s='0x';
+        for(let i=0;i<40;i++) s+=h[Math.floor(Math.random()*16)];
+        return s.slice(0,6)+'...'+s.slice(-4);
+    }
+
+    /* ── two positions — left hemisphere, opposite quadrants ── */
+    function twoLeftPos(){
+        const R=152; let p1,p2,t=0;
+        do {
+            const a1=rand(108,168)*Math.PI/180, d1=rand(R*.36,R*.8);
+            p1={x:d1*Math.cos(a1), y:d1*Math.sin(a1)};
+            const a2=rand(192,252)*Math.PI/180, d2=rand(R*.36,R*.8);
+            p2={x:d2*Math.cos(a2), y:d2*Math.sin(a2)};
+            if(Math.hypot(p1.x-p2.x,p1.y-p2.y)>=80) break;
+        } while(++t<200);
+        return [p1,p2];
+    }
+
+    /* ── element refs ── */
+    const trail  = document.getElementById('trail');
+    const imp    = document.getElementById('imp');
+    const s0c    = document.getElementById('s0c');
+    const s0l    = document.getElementById('s0l');
+    const cAddr  = document.getElementById('cAddr');
+    const debris = [1,2,3,4,5,6,7,8].map(i=>document.getElementById('db'+i));
+    const hconn  = document.getElementById('hconn');
+    const seqSl  = [1,2,3].map(i=>document.getElementById('ss'+i));
+    const aconn  = document.getElementById('aconn');
+    const albl   = document.getElementById('albl');
+    const arrSl  = [0,1,2].map(i=>document.getElementById('as'+i));
+    const rArr   = document.getElementById('rArr');
+    const lArr   = document.getElementById('lArr');
+    const bcn1   = document.getElementById('bcn1'), com1=document.getElementById('com1'),
+          spr1   = document.getElementById('spr1'), nsl1=document.getElementById('nsl1');
+    const bcn2   = document.getElementById('bcn2'), com2=document.getElementById('com2'),
+          spr2   = document.getElementById('spr2'), nsl2=document.getElementById('nsl2');
+    const shiftLbl = document.getElementById('shiftLbl');
+
+    function place(el,p){ el.style.left=`calc(50% + ${p.x}px)`; el.style.top=`calc(50% + ${p.y}px)`; }
+
+    /* ── comet flight ── */
+    const TRAVEL=920;
+    function flyComet(comet, entry, dest, onLand){
+        comet.style.transition='none';
+        comet.style.left=`calc(50% + ${entry.x}px)`;
+        comet.style.top =`calc(50% + ${entry.y}px)`;
+        comet.style.opacity='0'; reflow(comet);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            comet.style.transition=
+                `left ${TRAVEL}ms cubic-bezier(.25,0,.1,1),`+
+                `top  ${TRAVEL}ms cubic-bezier(.25,0,.1,1),`+
+                `opacity 150ms ease 0ms`;
+            comet.style.left=`calc(50% + ${dest.x}px)`;
+            comet.style.top =`calc(50% + ${dest.y}px)`;
+            comet.style.opacity='1';
+            setTimeout(()=>{ comet.style.transition+=',opacity 200ms ease'; comet.style.opacity='0'; }, TRAVEL-210);
+            setTimeout(onLand, TRAVEL-55);
+        }));
+    }
+
+    /* ── namespace landing — comet launches from Slot 0 (centre = 0,0) ── */
+    function landNS(dest, bcn, com, spr, slot, onDone){
+        const origin = {x: 0, y: 0};   // Slot 0 is the origin of the grid
+        place(bcn,dest); place(spr,dest); place(slot,dest);
+        slot.classList.remove('appear'); slot.style.opacity='0';
+        spr.classList.remove('burst');   bcn.classList.remove('ping');
+        com.style.opacity='0';
+
+        rst(bcn,'ping');
+        setTimeout(()=>{
+            flyComet(com, origin, dest, ()=>{
+                rst(spr,'burst');
+                setTimeout(()=>{ rst(slot,'appear'); if(onDone) onDone(); }, 260);
+            });
+        }, 420);
+    }
+
+    /* ── reset all state ── */
+    function reset(){
+        s0c.classList.remove('show'); s0l.classList.remove('show');
+        debris.forEach(d=>{ d.classList.remove('pop'); reflow(d); });
+        hconn.classList.remove('grow');
+        seqSl.forEach(s=>{ s.classList.remove('pop'); s.style.opacity='0'; reflow(s); });
+        aconn.classList.remove('grow');
+        arrSl.forEach(s=>{ s.classList.remove('pop'); s.style.opacity='0'; reflow(s); });
+        albl.style.opacity='0';
+        rArr.style.opacity='0'; lArr.style.opacity='0';
+        shiftLbl.classList.remove('show');
+        [nsl1,nsl2].forEach(s=>{ s.classList.remove('appear'); s.style.opacity='0'; });
+        [bcn1,bcn2].forEach(b=>b.classList.remove('ping'));
+        [spr1,spr2].forEach(s=>s.classList.remove('burst'));
+        [com1,com2].forEach(c=>c.style.opacity='0');
+    }
+
+    /* ── main sequence ── */
+    function run(){
+        cAddr.textContent = addr();
+        const [p1,p2] = twoLeftPos();
+        reset();
+
+        /* t=0: Slot 0 arrives from above */
+        rst(trail,'fall');
+        setTimeout(()=>{
+            rst(imp,'pop');
+            s0c.classList.add('show');
+            debris.forEach(d=>rst(d,'pop'));
+            setTimeout(()=>s0l.classList.add('show'), 460);
+        }, 1700);
+
+        /* t=2.5s: sequential slots grow RIGHTWARD */
+        setTimeout(()=>{
+            showAnim(rArr, 0);
+            rst(hconn,'grow');
+            setTimeout(()=>{ seqSl.forEach(s=>rst(s,'pop')); }, 620);
+
+            /* t=+1.3s: array elements grow UPWARD from slot 2 */
+            setTimeout(()=>{
+                rst(aconn,'grow');
+                setTimeout(()=>{
+                    showAnim(albl, 0);
+                    arrSl.forEach(s=>rst(s,'pop'));
+                }, 520);
+            }, 1300);
+        }, 2500);
+
+        /* t=3.2s: BOTH namespace comets fly in from RIGHT edge, land LEFT simultaneously */
+        let done=0;
+        function onBothDown(){
+            if(++done===2) setTimeout(()=>shiftLbl.classList.add('show'), 350);
+        }
+        setTimeout(()=>{
+            showAnim(lArr, 0);
+            landNS(p1, bcn1, com1, spr1, nsl1, onBothDown);
+            landNS(p2, bcn2, com2, spr2, nsl2, onBothDown);
+        }, 3200);
+    }
+
+    run();
+    setTimeout(()=>setInterval(run, 15000), 11000);
+</script>
+</body>
+</html>

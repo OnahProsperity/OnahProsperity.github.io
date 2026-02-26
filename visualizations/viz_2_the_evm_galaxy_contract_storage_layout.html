@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The EVM Galaxy: Contract Storage Layout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .galaxy-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 750px;
+            background: radial-gradient(ellipse at center, #050510 0%, #000000 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 100px rgba(139, 92, 246, 0.1),
+                inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Star Field */
+        .stars-far {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1px 1px at 5% 15%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 12% 42%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 18% 78%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 25% 25%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 32% 62%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 38% 8%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 45% 88%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 52% 35%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 58% 55%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 65% 18%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 72% 72%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 78% 45%, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 85% 92%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 92% 28%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 95% 65%, rgba(255,255,255,0.3), transparent);
+            animation: starsFloat 100s linear infinite;
+        }
+
+        .stars-near {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(1.5px 1.5px at 8% 32%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 22% 58%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 35% 12%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1.5px 1.5px at 48% 78%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 62% 38%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.5px 1.5px at 75% 85%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 88% 52%, rgba(255,255,255,0.6), transparent);
+            animation: starsFloat 60s linear infinite reverse;
+        }
+
+        @keyframes starsFloat {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+
+        /* Header */
+        .header-text {
+            position: absolute;
+            top: 25px;
+            left: 35px;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: rgba(165, 180, 252, 0.7);
+            margin-top: 5px;
+        }
+
+        /* Footer */
+        .footer-text {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 5s forwards;
+            max-width: 90%;
+        }
+
+        .footer-main {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            white-space: nowrap;
+        }
+
+        .footer-highlight {
+            color: rgba(139, 92, 246, 0.9);
+            font-weight: 600;
+        }
+
+        .footer-sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 5px;
+        }
+
+        /* Contract Address */
+        .address-display {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            text-align: right;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3.5s forwards;
+        }
+
+        .address-label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .address-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            color: rgba(79, 209, 197, 0.8);
+            background: rgba(79, 209, 197, 0.1);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(79, 209, 197, 0.2);
+        }
+
+        /* The Dome Container */
+        .dome-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 480px;
+            height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dome Barrier */
+        .dome-barrier {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            opacity: 0;
+            animation: domeAppear 2s ease-out 1s forwards;
+        }
+
+        .dome-outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: 
+                linear-gradient(#000, #000) padding-box,
+                linear-gradient(135deg, 
+                    rgba(139, 92, 246, 0.7) 0%, 
+                    rgba(79, 209, 197, 0.5) 25%,
+                    rgba(139, 92, 246, 0.7) 50%,
+                    rgba(79, 209, 197, 0.5) 75%,
+                    rgba(139, 92, 246, 0.7) 100%
+                ) border-box;
+            animation: ringRotate 12s linear infinite;
+            box-shadow:
+                0 0 30px rgba(139, 92, 246, 0.3),
+                0 0 60px rgba(139, 92, 246, 0.15),
+                inset 0 0 30px rgba(139, 92, 246, 0.08);
+        }
+
+        .dome-hex-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0;
+            animation: hexGridAppear 1.5s ease-out 1.5s forwards;
+        }
+
+        .dome-hex-grid::before {
+            content: '';
+            position: absolute;
+            inset: -50%;
+            background-image: 
+                linear-gradient(30deg, rgba(139, 92, 246, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.08) 87.5%),
+                linear-gradient(150deg, rgba(139, 92, 246, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.08) 87.5%),
+                linear-gradient(30deg, rgba(139, 92, 246, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.08) 87.5%),
+                linear-gradient(150deg, rgba(139, 92, 246, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(139, 92, 246, 0.08) 87.5%),
+                linear-gradient(60deg, rgba(79, 209, 197, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(79, 209, 197, 0.05) 75%),
+                linear-gradient(60deg, rgba(79, 209, 197, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(79, 209, 197, 0.05) 75%);
+            background-size: 40px 70px;
+            background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+            animation: hexPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes hexPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .dome-inner-glow {
+            position: absolute;
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+            top: 5%;
+            left: 5%;
+        }
+
+        /* Perimeter pulses */
+        .dome-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(139, 92, 246, 0.25);
+            opacity: 0;
+        }
+
+        .dome-pulse-1 { animation: pulseExpand 3s ease-out infinite; }
+        .dome-pulse-2 { animation: pulseExpand 3s ease-out infinite 1s; }
+        .dome-pulse-3 { animation: pulseExpand 3s ease-out infinite 2s; }
+
+        @keyframes pulseExpand {
+            0% { transform: scale(1); opacity: 0.5; border-color: rgba(139, 92, 246, 0.4); }
+            100% { transform: scale(1.3); opacity: 0; border-color: rgba(139, 92, 246, 0); }
+        }
+
+        /* Perimeter labels */
+        .perimeter-label {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            color: rgba(139, 92, 246, 0.5);
+            letter-spacing: 1px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 3s forwards;
+        }
+
+        .perimeter-top { top: -25px; left: 50%; transform: translateX(-50%); }
+        .perimeter-bottom { bottom: -25px; left: 50%; transform: translateX(-50%); }
+        .perimeter-left { left: -45px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+        .perimeter-right { right: -45px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+        /* Arrival Trail */
+        .arrival-trail {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 45%;
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(139, 92, 246, 0.1) 20%,
+                rgba(139, 92, 246, 0.5) 80%,
+                rgba(255, 255, 255, 0.9) 100%
+            );
+            opacity: 0;
+            z-index: 70;
+            filter: blur(0.5px);
+        }
+
+        .arrival-trail.animate {
+            animation: trailFall 1.8s ease-in forwards;
+        }
+
+        @keyframes trailFall {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-100%); }
+            20% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(10%); }
+        }
+
+        /* Impact Flash */
+        .impact-flash {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(
+                circle,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(139, 92, 246, 0.6) 25%,
+                rgba(139, 92, 246, 0.2) 50%,
+                transparent 70%
+            );
+            opacity: 0;
+            pointer-events: none;
+            z-index: 65;
+        }
+
+        .impact-flash.animate {
+            animation: impactFlash 1s ease-out forwards;
+        }
+
+        @keyframes impactFlash {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            25% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(2.5); }
+        }
+
+        /* Storage Grid Inside Dome */
+        .storage-grid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+
+        /* Beacon / Slot 0 - Origin Point */
+        .beacon-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+        }
+
+        .beacon-core {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .beacon-core.animate {
+            animation: beaconAppear 1s ease-out forwards;
+        }
+
+        .beacon-core.pulse {
+            animation: beaconPulse 0.8s ease-out;
+        }
+
+        .beacon-outer-glow {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 70%);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        .beacon-atmosphere {
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            top: -20%;
+            left: -20%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79, 209, 197, 0.2) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 70%);
+            animation: atmospherePulse 4s ease-in-out infinite;
+        }
+
+        .beacon-surface {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(
+                circle at 30% 30%,
+                rgba(255, 255, 255, 0.95) 0%,
+                rgba(200, 180, 255, 0.9) 20%,
+                rgba(139, 92, 246, 0.95) 55%,
+                rgba(90, 60, 180, 1) 100%
+            );
+            box-shadow:
+                0 0 35px rgba(139, 92, 246, 0.9),
+                0 0 70px rgba(139, 92, 246, 0.6),
+                0 0 110px rgba(139, 92, 246, 0.4),
+                inset -10px -10px 30px rgba(0, 0, 0, 0.3),
+                inset 5px 5px 20px rgba(255, 255, 255, 0.25);
+        }
+
+        @keyframes beaconAppear {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes beaconPulse {
+            0% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+            50% { transform: translate(-50%, -50%) scale(1.4); filter: brightness(1.6); }
+            100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 0.9; }
+        }
+
+        @keyframes atmospherePulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+
+        /* Slot 0 Label */
+        .slot0-label {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            white-space: nowrap;
+            opacity: 0;
+        }
+
+        .slot0-label.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .slot0-label-main {
+            font-family: 'Fira Code', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+        }
+
+        .slot0-label-sub {
+            font-size: 8px;
+            color: rgba(139, 92, 246, 0.6);
+            margin-top: 2px;
+        }
+
+        /* Debris Particles */
+        .debris-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(139, 92, 246, 0.9);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+        }
+
+        .debris-particle.animate {
+            animation: debrisFloat 1.5s ease-out forwards;
+        }
+
+        .debris-1 { --dx: -90px; --dy: -65px; }
+        .debris-2 { --dx: 85px; --dy: -55px; }
+        .debris-3 { --dx: -55px; --dy: 85px; }
+        .debris-4 { --dx: 75px; --dy: 95px; }
+        .debris-5 { --dx: -100px; --dy: 20px; }
+        .debris-6 { --dx: 95px; --dy: -30px; }
+        .debris-7 { --dx: 35px; --dy: -100px; }
+        .debris-8 { --dx: -45px; --dy: 100px; }
+
+        .debris-1.animate { animation-delay: 0ms; }
+        .debris-2.animate { animation-delay: 40ms; }
+        .debris-3.animate { animation-delay: 80ms; }
+        .debris-4.animate { animation-delay: 120ms; }
+        .debris-5.animate { animation-delay: 20ms; }
+        .debris-6.animate { animation-delay: 60ms; }
+        .debris-7.animate { animation-delay: 100ms; }
+        .debris-8.animate { animation-delay: 140ms; }
+
+        @keyframes debrisFloat {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(2); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); }
+        }
+
+        /* Horizontal Slots (to the right of beacon) */
+        .horizontal-slots {
+            position: absolute;
+            top: 50%;
+            left: calc(50% + 55px);
+            transform: translateY(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 45;
+        }
+
+        /* Connection line from beacon to slots */
+        .h-connection {
+            position: absolute;
+            top: 50%;
+            left: calc(50% + 28px);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(79, 209, 197, 0.7), rgba(79, 209, 197, 0.3));
+            transform: translateY(-50%);
+            opacity: 0;
+            z-index: 40;
+        }
+
+        .h-connection.animate {
+            animation: hConnectionGrow 0.6s ease-out forwards;
+        }
+
+        @keyframes hConnectionGrow {
+            0% { width: 0; opacity: 0; }
+            100% { width: 27px; opacity: 1; }
+        }
+
+        /* Storage Slot */
+        .storage-slot {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(8, 12, 25, 0.95);
+            border: 1.5px solid rgba(79, 209, 197, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-15px) scale(0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .storage-slot:hover {
+            border-color: rgba(79, 209, 197, 0.9);
+            background: rgba(79, 209, 197, 0.12);
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(79, 209, 197, 0.4);
+        }
+
+        .storage-slot.animate {
+            animation: slotAppearH 0.5s ease-out forwards;
+        }
+
+        .storage-slot:nth-child(1).animate { animation-delay: 0ms; }
+        .storage-slot:nth-child(2).animate { animation-delay: 80ms; }
+        .storage-slot:nth-child(3).animate { animation-delay: 160ms; }
+
+        @keyframes slotAppearH {
+            0% { opacity: 0; transform: translateX(-15px) scale(0.8); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
+        .slot-index {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 8px;
+            color: rgba(79, 209, 197, 0.6);
+        }
+
+        .slot-star {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(79, 209, 197, 0.9));
+            box-shadow: 0 0 10px rgba(79, 209, 197, 0.7), 0 0 20px rgba(79, 209, 197, 0.35);
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        .slot-star.empty {
+            width: 8px;
+            height: 8px;
+            background: rgba(79, 209, 197, 0.2);
+            box-shadow: none;
+            animation: none;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.9); }
+        }
+
+        .slot-type {
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        .slot-bytes {
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(79, 209, 197, 0.4);
+            white-space: nowrap;
+        }
+
+        /* PORTAL SLOT - Slot with array */
+        .storage-slot.has-array {
+            border-color: rgba(251, 146, 60, 0.6);
+            background: rgba(251, 146, 60, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .storage-slot.has-array:hover {
+            border-color: rgba(251, 146, 60, 0.9);
+            background: rgba(251, 146, 60, 0.15);
+            box-shadow: 0 0 40px rgba(251, 146, 60, 0.5);
+        }
+
+        /* Portal vortex effect */
+        .portal-vortex {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            opacity: 0;
+        }
+
+        .portal-vortex.animate {
+            animation: portalActivate 0.8s ease-out forwards;
+        }
+
+        .portal-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(251, 146, 60, 0.6);
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        .portal-ring-1 {
+            width: 15px;
+            height: 15px;
+            animation: portalRingExpand 1.5s ease-out infinite;
+        }
+
+        .portal-ring-2 {
+            width: 15px;
+            height: 15px;
+            animation: portalRingExpand 1.5s ease-out infinite 0.3s;
+        }
+
+        .portal-ring-3 {
+            width: 15px;
+            height: 15px;
+            animation: portalRingExpand 1.5s ease-out infinite 0.6s;
+        }
+
+        @keyframes portalRingExpand {
+            0% { 
+                width: 15px; 
+                height: 15px; 
+                opacity: 0.8; 
+                border-color: rgba(251, 146, 60, 0.8);
+            }
+            100% { 
+                width: 45px; 
+                height: 45px; 
+                opacity: 0; 
+                border-color: rgba(251, 146, 60, 0);
+            }
+        }
+
+        @keyframes portalActivate {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .portal-star {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(251, 146, 60, 0.95));
+            box-shadow: 
+                0 0 15px rgba(251, 146, 60, 0.9), 
+                0 0 30px rgba(251, 146, 60, 0.5),
+                inset 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: portalPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes portalPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 
+                    0 0 15px rgba(251, 146, 60, 0.9), 
+                    0 0 30px rgba(251, 146, 60, 0.5);
+            }
+            50% { 
+                transform: scale(1.2); 
+                box-shadow: 
+                    0 0 25px rgba(251, 146, 60, 1), 
+                    0 0 50px rgba(251, 146, 60, 0.7);
+            }
+        }
+
+        /* Horizontal Direction Arrow */
+        .h-arrow {
+            position: absolute;
+            top: calc(50% - 42px);
+            left: calc(50% + 55px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            z-index: 50;
+        }
+
+        .h-arrow.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .arrow-line-h {
+            width: 70px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(79, 209, 197, 0.5), rgba(79, 209, 197, 0.1));
+            position: relative;
+        }
+
+        .arrow-line-h::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            border: 5px solid transparent;
+            border-left: 7px solid rgba(79, 209, 197, 0.5);
+        }
+
+        .arrow-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 9px;
+            color: rgba(79, 209, 197, 0.6);
+            white-space: nowrap;
+        }
+
+        /* WARP TUNNEL - Visual jump to array region */
+        .warp-tunnel {
+            position: absolute;
+            bottom: calc(50% + 24px);
+            left: calc(50% + 55px + 48px + 10px + 24px);
+            width: 3px;
+            height: 0;
+            opacity: 0;
+            z-index: 40;
+        }
+
+        .warp-tunnel.animate {
+            animation: warpAppear 1s ease-out forwards;
+        }
+
+        @keyframes warpAppear {
+            0% { 
+                height: 0; 
+                opacity: 0;
+                background: rgba(251, 146, 60, 0.8);
+            }
+            30% {
+                height: 50px;
+                opacity: 1;
+                background: linear-gradient(180deg, 
+                    rgba(251, 146, 60, 0.9), 
+                    rgba(251, 146, 60, 0.4));
+            }
+            100% { 
+                height: 160px; 
+                opacity: 0.6;
+                background: linear-gradient(180deg, 
+                    rgba(251, 146, 60, 0.1), 
+                    transparent 50%,
+                    rgba(251, 146, 60, 0.4));
+            }
+        }
+
+        /* Warp particles traveling down */
+        .warp-particle {
+            position: absolute;
+            width: 3px;
+            height: 12px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.9), 
+                rgba(251, 146, 60, 0.6));
+            border-radius: 50%;
+            opacity: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 8px rgba(251, 146, 60, 0.8);
+        }
+
+        .warp-particle.animate {
+            animation: warpParticleTravel 1.2s ease-in infinite;
+        }
+
+        .warp-particle-1 { animation-delay: 0s; }
+        .warp-particle-2 { animation-delay: 0.2s; }
+        .warp-particle-3 { animation-delay: 0.4s; }
+        .warp-particle-4 { animation-delay: 0.6s; }
+
+        @keyframes warpParticleTravel {
+            0% { 
+                top: -10px; 
+                opacity: 0; 
+                transform: translateX(-50%) scale(0.5);
+            }
+            20% { 
+                opacity: 1; 
+                transform: translateX(-50%) scale(1);
+            }
+            80% { 
+                opacity: 1; 
+            }
+            100% { 
+                top: 100%; 
+                opacity: 0;
+                transform: translateX(-50%) scale(0.5);
+            }
+        }
+
+        /* Hash calculation display */
+        .hash-display {
+            position: absolute;
+            top: calc(50% + 35px);
+            left: calc(50% + 55px + 58px + 10px);
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(251, 146, 60, 0.8);
+            background: rgba(251, 146, 60, 0.1);
+            padding: 3px 5px;
+            border-radius: 4px;
+            border: 1px solid rgba(251, 146, 60, 0.3);
+            white-space: nowrap;
+            opacity: 0;
+            z-index: 50;
+            width: 48px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .hash-display.animate {
+            animation: hashAppear 0.8s ease-out forwards;
+        }
+
+        @keyframes hashAppear {
+            0% { 
+                opacity: 0; 
+                transform: translateY(10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* Distant array region visual separator */
+        .array-region {
+            position: absolute;
+            bottom: calc(50% + 58px);
+            left: calc(50% + 55px + 48px + 10px - 15px);
+            width: 110px;
+            height: 180px;
+            border: 1px dashed rgba(251, 146, 60, 0.2);
+            border-radius: 12px;
+            background: rgba(251, 146, 60, 0.03);
+            opacity: 0;
+            z-index: 35;
+        }
+
+        .array-region.animate {
+            animation: regionAppear 0.8s ease-out forwards;
+        }
+
+        @keyframes regionAppear {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .array-region-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 8px;
+            color: rgba(251, 146, 60, 0.6);
+            white-space: nowrap;
+        }
+
+        /* Vertical Slots (Arrays) - now inside region */
+        .vertical-slots {
+            position: absolute;
+            bottom: calc(50% + 70px);
+            left: calc(50% + 55px + 48px + 10px);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 8px;
+            z-index: 45;
+        }
+
+        .array-slot {
+            width: 46px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(8, 12, 25, 0.95);
+            border: 1.5px solid rgba(251, 146, 60, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(12px) scale(0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .array-slot:hover {
+            border-color: rgba(251, 146, 60, 0.9);
+            background: rgba(251, 146, 60, 0.12);
+            transform: scale(1.15);
+            z-index: 100;
+            box-shadow: 0 0 25px rgba(251, 146, 60, 0.4);
+        }
+
+        .array-slot.animate {
+            animation: slotAppearV 0.6s ease-out forwards;
+        }
+
+        .array-slot:nth-child(1).animate { animation-delay: 0ms; }
+        .array-slot:nth-child(2).animate { animation-delay: 100ms; }
+        .array-slot:nth-child(3).animate { animation-delay: 200ms; }
+        .array-slot:nth-child(4).animate { animation-delay: 300ms; }
+
+        @keyframes slotAppearV {
+            0% { opacity: 0; transform: translateY(12px) scale(0.8); }
+            60% { transform: translateY(-5px) scale(1.1); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .array-index {
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Fira Code', monospace;
+            font-size: 7px;
+            color: rgba(251, 146, 60, 0.5);
+        }
+
+        .array-star {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, rgba(251, 146, 60, 0.9));
+            box-shadow: 0 0 8px rgba(251, 146, 60, 0.6), 0 0 15px rgba(251, 146, 60, 0.3);
+            animation: starTwinkle 2.3s ease-in-out infinite;
+        }
+
+        .array-type {
+            font-family: 'Fira Code', monospace;
+            font-size: 6px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        /* Vertical Direction Arrow */
+        .v-arrow {
+            position: absolute;
+            bottom: calc(50% + 70px);
+            left: calc(50% + 55px + 48px + 10px + 55px);
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            opacity: 0;
+            z-index: 50;
+        }
+
+        .v-arrow.animate {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .arrow-line-v {
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(0deg, rgba(251, 146, 60, 0.5), rgba(251, 146, 60, 0.1));
+            position: relative;
+        }
+
+        .arrow-line-v::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -4px;
+            border: 5px solid transparent;
+            border-bottom: 7px solid rgba(251, 146, 60, 0.5);
+        }
+
+        .v-arrow .arrow-text {
+            color: rgba(251, 146, 60, 0.6);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* Info Panels */
+        .info-panel {
+            position: absolute;
+            background: rgba(10, 10, 30, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 10px;
+            padding: 14px 16px;
+            opacity: 0;
+            z-index: 100;
+            max-width: 190px;
+        }
+
+        .info-panel-left {
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            animation: fadeIn 1s ease-out 6s forwards;
+        }
+
+        .info-panel-right {
+            right: 25px;
+            bottom: 120px;
+            animation: fadeIn 1s ease-out 6.3s forwards;
+        }
+
+        .info-title {
+            font-size: 9px;
+            color: rgba(139, 92, 246, 0.75);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-content {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.65);
+            line-height: 1.6;
+        }
+
+        .info-highlight {
+            color: rgba(79, 209, 197, 0.95);
+            font-weight: 500;
+        }
+
+        .info-highlight-orange {
+            color: rgba(251, 146, 60, 0.95);
+            font-weight: 500;
+        }
+
+        /* Deploy Counter */
+        .deploy-counter {
+            position: absolute;
+            bottom: 25px;
+            right: 35px;
+            text-align: right;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 5s forwards;
+        }
+
+        .counter-label {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .counter-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 22px;
+            color: rgba(139, 92, 246, 0.9);
+            font-weight: 600;
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 6.5s forwards;
+            z-index: 100;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.beacon {
+            background: radial-gradient(circle, #fff, rgba(139, 92, 246, 0.9));
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+        }
+
+        .legend-dot.simple {
+            background: radial-gradient(circle, #fff, rgba(79, 209, 197, 0.9));
+            box-shadow: 0 0 6px rgba(79, 209, 197, 0.5);
+        }
+
+        .legend-dot.portal {
+            background: radial-gradient(circle, #fff, rgba(251, 146, 60, 0.9));
+            box-shadow: 0 0 8px rgba(251, 146, 60, 0.6);
+            animation: portalDotPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes portalDotPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .legend-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes domeAppear {
+            0% { opacity: 0; transform: scale(0.3); }
+            60% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes hexGridAppear {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design - Simplified like viz_3 */
+        @media (max-width: 1000px) {
+            .galaxy-container {
+                height: 650px;
+            }
+
+            .header-title {
+                font-size: 22px;
+            }
+
+            .dome-container {
+                width: 400px;
+                height: 400px;
+            }
+
+            .info-panel {
+                display: none;
+            }
+
+            .footer-text {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .galaxy-container {
+                height: 550px;
+            }
+
+            .header-title {
+                font-size: 18px;
+            }
+
+            .dome-container {
+                width: 320px;
+                height: 320px;
+            }
+
+            .horizontal-slots {
+                gap: 6px;
+            }
+
+            .storage-slot {
+                width: 36px;
+                height: 36px;
+            }
+
+            .array-slot {
+                width: 34px;
+                height: 26px;
+            }
+
+            .array-region {
+                width: 80px;
+                height: 130px;
+            }
+
+            .array-region-label,
+            .legend,
+            .info-panel-left,
+            .info-panel-right,
+            .deploy-counter {
+                display: none;
+            }
+
+            .footer-main {
+                font-size: 11px;
+                white-space: normal;
+            }
+
+            .footer-sub {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .galaxy-container {
+                height: 480px;
+            }
+
+            .header-title {
+                font-size: 16px;
+            }
+
+            .header-subtitle {
+                font-size: 11px;
+            }
+
+            .dome-container {
+                width: 260px;
+                height: 260px;
+            }
+
+            .storage-slot {
+                width: 26px;
+                height: 26px;
+            }
+
+            .slot-label {
+                font-size: 6px;
+            }
+
+            .slot-type,
+            .slot-size {
+                font-size: 5px;
+            }
+
+            .array-slot {
+                width: 20px;
+                height: 16px;
+                font-size: 6px;
+            }
+
+            .array-star {
+                width: 6px;
+                height: 6px;
+            }
+
+            .array-index,
+            .array-type {
+                display: none;
+            }
+
+            .array-region {
+                display: none;
+            }
+
+            .vertical-slots {
+                transform: scale(0.65);
+                left: calc(50% + 45px);
+                bottom: calc(50% + 40px);
+                gap: 3px;
+            }
+
+            .v-arrow,
+            .warp-tunnel,
+            .hash-display {
+                display: none;
+            }
+
+            .address-display {
+                display: none;
+            }
+
+            .footer-main {
+                font-size: 10px;
+            }
+
+            .perimeter-label {
+                font-size: 8px !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .galaxy-container {
+                height: 400px;
+            }
+
+            .dome-container {
+                width: 220px;
+                height: 220px;
+            }
+
+            .storage-slot {
+                width: 22px;
+                height: 22px;
+            }
+
+            .header-title {
+                font-size: 14px;
+            }
+
+            .vertical-slots {
+                transform: scale(0.5);
+                left: calc(50% + 35px);
+                bottom: calc(50% + 30px);
+                gap: 2px;
+            }
+
+            .header-subtitle {
+                font-size: 10px;
+                display: none;
+            }
+
+            .footer-label,
+            .footer-sub {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="galaxy-container">
+        <!-- Star field -->
+        <div class="stars-far"></div>
+        <div class="stars-near"></div>
+
+        <!-- Header -->
+        <div class="header-text">
+            <h1 class="header-title">The EVM Galaxy</h1>
+            <p class="header-subtitle">Watch contracts arrive and teleport their arrays to distant storage regions...</p>
+        </div>
+
+        <!-- Contract address -->
+        <div class="address-display">
+            <div class="address-label">Contract Address</div>
+            <div class="address-value" id="contractAddress">0x742d...3a4f</div>
+        </div>
+
+        <!-- Arrival trail -->
+        <div class="arrival-trail" id="arrivalTrail"></div>
+
+        <!-- Impact flash -->
+        <div class="impact-flash" id="impactFlash"></div>
+
+        <!-- The Dome (2^256 Perimeter) -->
+        <div class="dome-container">
+            <!-- Perimeter labels -->
+            <div class="perimeter-label perimeter-top">2²⁵⁶ boundary</div>
+            <div class="perimeter-label perimeter-bottom">storage perimeter</div>
+            <div class="perimeter-label perimeter-left">2²⁵⁶</div>
+            <div class="perimeter-label perimeter-right">2²⁵⁶</div>
+
+            <!-- Dome barrier -->
+            <div class="dome-barrier">
+                <div class="dome-outer-ring"></div>
+                <div class="dome-hex-grid"></div>
+                <div class="dome-inner-glow"></div>
+            </div>
+
+            <!-- Perimeter pulses -->
+            <div class="dome-pulse dome-pulse-1"></div>
+            <div class="dome-pulse dome-pulse-2"></div>
+            <div class="dome-pulse dome-pulse-3"></div>
+
+            <!-- Storage Grid -->
+            <div class="storage-grid">
+                
+                <!-- Beacon / Slot 0 -->
+                <div class="beacon-container">
+                    <!-- Debris particles -->
+                    <div class="debris-particle debris-1" id="debris1"></div>
+                    <div class="debris-particle debris-2" id="debris2"></div>
+                    <div class="debris-particle debris-3" id="debris3"></div>
+                    <div class="debris-particle debris-4" id="debris4"></div>
+                    <div class="debris-particle debris-5" id="debris5"></div>
+                    <div class="debris-particle debris-6" id="debris6"></div>
+                    <div class="debris-particle debris-7" id="debris7"></div>
+                    <div class="debris-particle debris-8" id="debris8"></div>
+
+                    <!-- Beacon core -->
+                    <div class="beacon-core" id="beaconCore">
+                        <div class="beacon-outer-glow"></div>
+                        <div class="beacon-atmosphere"></div>
+                        <div class="beacon-surface"></div>
+                    </div>
+
+                    <!-- Slot 0 label -->
+                    <div class="slot0-label" id="slot0Label">
+                        <div class="slot0-label-main">SLOT[0] • ORIGIN</div>
+                        <div class="slot0-label-sub" id="contractName">MyToken.sol</div>
+                    </div>
+                </div>
+
+                <!-- Connection to horizontal slots -->
+                <div class="h-connection" id="hConnection"></div>
+
+                <!-- Horizontal direction arrow -->
+                <div class="h-arrow" id="hArrow">
+                    <div class="arrow-line-h"></div>
+                    <span class="arrow-text">slots →</span>
+                </div>
+
+                <!-- Horizontal slots -->
+                <div class="horizontal-slots" id="horizontalSlots">
+                    <div class="storage-slot" id="slot1">
+                        <span class="slot-index">slot[1]</span>
+                        <div class="slot-star"></div>
+                        <span class="slot-type">uint256</span>
+                        <span class="slot-bytes">32 bytes</span>
+                    </div>
+                    <div class="storage-slot has-array" id="slot2">
+                        <span class="slot-index">slot[2]</span>
+                        <div class="portal-vortex" id="portalVortex">
+                            <div class="portal-ring portal-ring-1"></div>
+                            <div class="portal-ring portal-ring-2"></div>
+                            <div class="portal-ring portal-ring-3"></div>
+                        </div>
+                        <div class="portal-star"></div>
+                        <span class="slot-type">PORTAL</span>
+                        <span class="slot-bytes">array.len</span>
+                    </div>
+                    <div class="storage-slot" id="slot3">
+                        <span class="slot-index">slot[3]</span>
+                        <div class="slot-star"></div>
+                        <span class="slot-type">address</span>
+                        <span class="slot-bytes">32 bytes</span>
+                    </div>
+                </div>
+
+                <!-- Warp tunnel with particles -->
+                <div class="warp-tunnel" id="warpTunnel">
+                    <div class="warp-particle warp-particle-1"></div>
+                    <div class="warp-particle warp-particle-2"></div>
+                    <div class="warp-particle warp-particle-3"></div>
+                    <div class="warp-particle warp-particle-4"></div>
+                </div>
+
+                <!-- Hash calculation display -->
+                <div class="hash-display" id="hashDisplay">
+                    keccak(2)
+                </div>
+
+                <!-- Distant array region -->
+                <div class="array-region" id="arrayRegion">
+                    <div class="array-region-label">⟨ Distant Array Region ⟩</div>
+                </div>
+
+                <!-- Vertical direction arrow -->
+                <div class="v-arrow" id="vArrow">
+                    <div class="arrow-line-v"></div>
+                    <span class="arrow-text">grows ↓</span>
+                </div>
+
+                <!-- Vertical array slots -->
+                <div class="vertical-slots" id="verticalSlots">
+                    <div class="array-slot" id="arr0">
+                        <span class="array-index">[0]</span>
+                        <div class="array-star"></div>
+                        <span class="array-type">element</span>
+                    </div>
+                    <div class="array-slot" id="arr1">
+                        <span class="array-index">[1]</span>
+                        <div class="array-star"></div>
+                        <span class="array-type">element</span>
+                    </div>
+                    <div class="array-slot" id="arr2">
+                        <span class="array-index">[2]</span>
+                        <div class="array-star"></div>
+                        <span class="array-type">element</span>
+                    </div>
+                    <div class="array-slot" id="arr3">
+                        <span class="array-index">[2]</span>
+                        <div class="array-star"></div>
+                        <span class="array-type">...</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Info panels -->
+        <div class="info-panel info-panel-left">
+            <div class="info-title">Storage Layout</div>
+            <div class="info-content">
+                <span class="info-highlight">Slot[0]</span> is the origin.<br><br>
+                Slots flow <span class="info-highlight">→ right</span> sequentially.<br><br>
+                Arrays use <span class="info-highlight-orange">portals</span> to jump to distant regions!
+            </div>
+        </div>
+
+        <div class="info-panel info-panel-right">
+            <div class="info-title">Portal Mechanics</div>
+            <div class="info-content">
+                <span class="info-highlight-orange">Slot[2]</span> is a portal gateway.<br><br>
+                It teleports via <span class="info-highlight-orange">keccak256(2)</span> to a far-away storage region.
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot beacon"></div>
+                <span class="legend-text">Origin</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot simple"></div>
+                <span class="legend-text">Sequential</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot portal"></div>
+                <span class="legend-text">Portal</span>
+            </div>
+        </div>
+
+        <!-- Deploy counter -->
+        <div class="deploy-counter">
+            <div class="counter-label">Deployments</div>
+            <div class="counter-value" id="deployCount">1</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-text">
+            <div class="footer-main">
+                Storage: <span class="footer-highlight">2<sup>256</sup> slots</span> • Each: <span class="footer-highlight">32 bytes</span> • Arrays: <span class="footer-highlight">Hashed & Distant</span>
+            </div>
+            <div class="footer-sub">
+                Arrays teleport through portals to far-away regions of the galaxy
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contract names for variety
+        const contractNames = [
+            'MyToken.sol',
+            'NFTMarket.sol',
+            'DeFiVault.sol',
+            'GameLogic.sol',
+            'Governance.sol',
+            'Staking.sol',
+            'Bridge.sol',
+            'Oracle.sol',
+            'Auction.sol',
+            'Lottery.sol'
+        ];
+
+        // Generate random address
+        function generateAddress() {
+            const chars = '0123456789abcdef';
+            let addr = '0x';
+            for (let i = 0; i < 4; i++) {
+                addr += chars[Math.floor(Math.random() * 16)];
+            }
+            addr += '...';
+            for (let i = 0; i < 4; i++) {
+                addr += chars[Math.floor(Math.random() * 16)];
+            }
+            return addr;
+        }
+
+        // Elements
+        const arrivalTrail = document.getElementById('arrivalTrail');
+        const impactFlash = document.getElementById('impactFlash');
+        const beaconCore = document.getElementById('beaconCore');
+        const slot0Label = document.getElementById('slot0Label');
+        const contractAddress = document.getElementById('contractAddress');
+        const contractName = document.getElementById('contractName');
+        const deployCount = document.getElementById('deployCount');
+        const hConnection = document.getElementById('hConnection');
+        const hArrow = document.getElementById('hArrow');
+        const portalVortex = document.getElementById('portalVortex');
+        const warpTunnel = document.getElementById('warpTunnel');
+        const hashDisplay = document.getElementById('hashDisplay');
+        const arrayRegion = document.getElementById('arrayRegion');
+        const vArrow = document.getElementById('vArrow');
+
+        // Get horizontal slots
+        const hSlots = [];
+        for (let i = 1; i <= 3; i++) {
+            hSlots.push(document.getElementById('slot' + i));
+        }
+
+        // Get array slots
+        const aSlots = [];
+        for (let i = 0; i <= 3; i++) {
+            aSlots.push(document.getElementById('arr' + i));
+        }
+
+        // Get debris particles
+        const debris = [];
+        for (let i = 1; i <= 8; i++) {
+            debris.push(document.getElementById('debris' + i));
+        }
+
+        // Get warp particles
+        const warpParticles = warpTunnel.querySelectorAll('.warp-particle');
+
+        let deploymentCount = 0;
+        let isFirstRun = true;
+
+        // Reset animation helper
+        function resetAnimation(element, className) {
+            element.classList.remove(className);
+            void element.offsetWidth;
+            element.classList.add(className);
+        }
+
+        // Pulse effect for slots
+        function pulseSlots() {
+            // Pulse horizontal slots
+            hSlots.forEach((slot, i) => {
+                setTimeout(() => {
+                    slot.style.transform = 'scale(1.2)';
+                    slot.style.boxShadow = '0 0 35px rgba(79, 209, 197, 0.6)';
+                    setTimeout(() => {
+                        slot.style.transform = '';
+                        slot.style.boxShadow = '';
+                    }, 200);
+                }, i * 70);
+            });
+
+            // Pulse array slots
+            setTimeout(() => {
+                aSlots.forEach((slot, i) => {
+                    setTimeout(() => {
+                        slot.style.transform = 'scale(1.2)';
+                        slot.style.boxShadow = '0 0 30px rgba(251, 146, 60, 0.6)';
+                        setTimeout(() => {
+                            slot.style.transform = '';
+                            slot.style.boxShadow = '';
+                        }, 200);
+                    }, i * 70);
+                });
+            }, 280);
+        }
+
+        // Main arrival sequence
+        function runArrivalSequence() {
+            deploymentCount++;
+            
+            // Update display values
+            deployCount.textContent = deploymentCount;
+            contractAddress.textContent = generateAddress();
+            contractName.textContent = contractNames[Math.floor(Math.random() * contractNames.length)];
+
+            if (!isFirstRun) {
+                // Subsequent runs - pulse animation
+                resetAnimation(arrivalTrail, 'animate');
+
+                setTimeout(() => {
+                    resetAnimation(impactFlash, 'animate');
+                }, 1400);
+
+                setTimeout(() => {
+                    beaconCore.classList.remove('pulse');
+                    void beaconCore.offsetWidth;
+                    beaconCore.classList.add('pulse');
+                }, 1600);
+
+                setTimeout(() => {
+                    debris.forEach(d => resetAnimation(d, 'animate'));
+                }, 1600);
+
+                setTimeout(() => {
+                    resetAnimation(portalVortex, 'animate');
+                }, 1900);
+
+                setTimeout(() => {
+                    resetAnimation(warpTunnel, 'animate');
+                    warpParticles.forEach(p => resetAnimation(p, 'animate'));
+                }, 2200);
+
+                setTimeout(() => {
+                    pulseSlots();
+                }, 2800);
+
+            } else {
+                // First run - full animation sequence
+                isFirstRun = false;
+
+                // Trail falls
+                setTimeout(() => {
+                    arrivalTrail.classList.add('animate');
+                }, 800);
+
+                // Impact flash
+                setTimeout(() => {
+                    impactFlash.classList.add('animate');
+                }, 2200);
+
+                // Beacon appears
+                setTimeout(() => {
+                    beaconCore.classList.add('animate');
+                }, 2500);
+
+                // Debris flies out
+                setTimeout(() => {
+                    debris.forEach(d => d.classList.add('animate'));
+                }, 2700);
+
+                // Slot 0 label
+                setTimeout(() => {
+                    slot0Label.classList.add('animate');
+                }, 3100);
+
+                // Horizontal connection line
+                setTimeout(() => {
+                    hConnection.classList.add('animate');
+                }, 3400);
+
+                // Horizontal arrow
+                setTimeout(() => {
+                    hArrow.classList.add('animate');
+                }, 3600);
+
+                // Horizontal slots appear
+                setTimeout(() => {
+                    hSlots.forEach(slot => slot.classList.add('animate'));
+                }, 3800);
+
+                // Portal vortex activates
+                setTimeout(() => {
+                    portalVortex.classList.add('animate');
+                }, 4300);
+
+                // Warp tunnel forms with particles
+                setTimeout(() => {
+                    warpTunnel.classList.add('animate');
+                    warpParticles.forEach(p => p.classList.add('animate'));
+                }, 4600);
+
+                // Hash display
+                setTimeout(() => {
+                    hashDisplay.classList.add('animate');
+                }, 4800);
+
+                // Array region appears
+                setTimeout(() => {
+                    arrayRegion.classList.add('animate');
+                }, 5200);
+
+                // Vertical arrow
+                setTimeout(() => {
+                    vArrow.classList.add('animate');
+                }, 5400);
+
+                // Array slots appear
+                setTimeout(() => {
+                    aSlots.forEach(slot => slot.classList.add('animate'));
+                }, 5600);
+            }
+        }
+
+        // Start the sequence
+        runArrivalSequence();
+
+        // Repeat every 11 seconds after initial animation
+        setTimeout(() => {
+            setInterval(runArrivalSequence, 11000);
+        }, 8000);
+    </script>
+</body>
+</html>
